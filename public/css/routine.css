@@ -1,0 +1,141 @@
+.routine-section{display:flex;flex-direction:column;gap:10px}
+.chart-card .chart-wrapper{height:200px;position:relative}
+.chart-card canvas{width:100%!important;height:100%!important}
+.chart-card{padding:14px}
+.period-selector{display:flex;gap:6px;margin-bottom:10px;flex-wrap:wrap}
+.period-btn{
+  padding:6px 14px;border-radius:20px;border:1px solid #333;
+  background:transparent;color:var(--text-secondary);cursor:pointer;
+  font-size:13px;font-weight:500;transition:all .2s;
+}
+.period-btn.active{background:var(--primary);color:#000;border-color:var(--primary);font-weight:700}
+.period-btn:hover:not(.active){border-color:var(--primary);color:var(--primary)}
+.motivation-card{
+  background:linear-gradient(135deg,var(--card),var(--card-hover));
+  border:1px solid rgba(212,175,55,.2);position:relative;
+  padding:12px 16px;
+}
+.motivation-header{display:flex;justify-content:space-between;align-items:center;margin-bottom:6px}
+.motivation-icon{font-size:18px}
+.refresh-btn{
+  background:none;border:none;font-size:14px;cursor:pointer;
+  opacity:.6;transition:all .2s;padding:4px;
+}
+.refresh-btn:hover{opacity:1;transform:rotate(180deg)}
+.motivation-text{
+  font-size:14px;line-height:1.5;color:var(--text);
+}
+.motivation-credit{
+  display:block;text-align:right;color:var(--text-secondary);
+  font-size:12px;margin-top:6px;
+}
+.day-selector-container{overflow-x:auto;-webkit-overflow-scrolling:touch}
+.day-selector{display:flex;gap:6px;justify-content:center;padding:2px 0}
+.day-btn{
+  width:40px;height:40px;border-radius:50%;border:none;
+  background:var(--surface);color:var(--text-secondary);
+  font-size:12px;font-weight:500;cursor:pointer;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  gap:1px;transition:all .2s;position:relative;
+}
+.day-btn.active{
+  background:var(--primary);color:#000;font-weight:700;
+  box-shadow:0 0 12px rgba(212,175,55,.3);
+}
+.day-btn:hover:not(.active){background:#333}
+.day-dot{
+  width:5px;height:5px;border-radius:50%;position:absolute;bottom:3px;
+}
+.day-dot.perfect{background:var(--positive)}
+.day-dot.partial{background:var(--neutral)}
+.day-dot.zero{background:var(--negative)}
+.goals-list{display:flex;flex-direction:column;gap:6px}
+.goal-card{
+  background:var(--surface);border-radius:10px;padding:12px;
+  display:flex;align-items:center;gap:10px;transition:all .2s;
+  cursor:pointer;border-left:3px solid transparent;
+}
+.goal-card:hover{border-left-color:var(--primary);background:var(--card-hover)}
+.goal-card.completed .goal-name{opacity:.7}
+.goal-checkbox{
+  width:24px;height:24px;min-width:24px;border-radius:6px;
+  border:2px solid #444;background:transparent;cursor:pointer;
+  display:flex;align-items:center;justify-content:center;
+  transition:all .2s;font-size:14px;color:transparent;
+}
+.goal-checkbox.checked{
+  background:var(--primary);border-color:var(--primary);
+  color:#000;animation:checkPop .3s ease;
+}
+.goal-info{flex:1;min-width:0}
+.goal-name-row{display:flex;align-items:center;gap:6px}
+.goal-icon{font-size:16px}
+.goal-name{font-size:15px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.goal-streak{font-size:11px;color:var(--text-secondary);margin-top:2px}
+.goal-meta{display:flex;flex-direction:column;align-items:flex-end;gap:3px;white-space:nowrap}
+.goal-time{font-size:11px;color:var(--text-secondary)}
+.goal-freq{
+  font-size:10px;padding:2px 8px;border-radius:10px;
+  background:rgba(255,255,255,.06);color:var(--text-secondary);
+}
+.progress-bar-container{padding:2px 0}
+.progress-info{display:flex;justify-content:space-between;font-size:13px;color:var(--text-secondary);margin-bottom:4px}
+.progress-bar{height:7px;background:#333;border-radius:4px;overflow:hidden}
+.progress-fill{
+  height:100%;background:linear-gradient(90deg,var(--primary),var(--primary-light));
+  border-radius:4px;transition:width .5s ease;width:0;
+}
+.add-goal-btn{
+  width:100%;padding:12px;background:transparent;
+  border:1px dashed #444;border-radius:10px;
+  color:var(--text-secondary);font-size:14px;cursor:pointer;
+  transition:all .2s;text-align:center;
+}
+.add-goal-btn:hover{border-color:var(--primary);color:var(--primary)}
+.emoji-grid{display:flex;flex-wrap:wrap;gap:8px;margin-top:8px}
+.emoji-option{
+  width:36px;height:36px;display:flex;align-items:center;justify-content:center;
+  font-size:20px;background:var(--bg-dark);border:1px solid #333;
+  border-radius:8px;cursor:pointer;transition:all .2s;
+}
+.emoji-option:hover{border-color:var(--primary);transform:scale(1.1)}
+.freq-options{display:flex;flex-wrap:wrap;gap:10px;margin-bottom:8px}
+.radio-option{
+  display:flex;align-items:center;gap:6px;color:var(--text-secondary);
+  font-size:14px;cursor:pointer;
+}
+.radio-option input{accent-color:var(--primary)}
+.freq-days{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px}
+.day-chip{
+  padding:6px 12px;border-radius:16px;background:var(--bg-dark);
+  border:1px solid #333;color:var(--text-secondary);font-size:13px;
+  cursor:pointer;transition:all .2s;
+}
+.day-chip.selected{background:var(--primary);color:#000;border-color:var(--primary)}
+.day-chip:hover:not(.selected){border-color:var(--primary)}
+.manage-goal-item{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:12px;background:var(--bg-dark);border-radius:8px;margin-bottom:8px;
+}
+.manage-goal-info{display:flex;align-items:center;gap:8px}
+.manage-goal-actions{display:flex;gap:8px}
+.manage-goal-actions button{
+  background:none;border:none;cursor:pointer;font-size:16px;
+  padding:4px;transition:opacity .2s;opacity:.6;
+}
+.manage-goal-actions button:hover{opacity:1}
+.confetti-particle{
+  position:absolute;width:6px;height:6px;border-radius:50%;
+  pointer-events:none;animation:confettiFall 1s ease forwards;
+}
+@media(max-width:768px){
+  .chart-card .chart-wrapper{height:180px}
+}
+@media(max-width:480px){
+  .goal-card{padding:10px;gap:8px}
+  .goal-name{font-size:13px}
+  .period-selector{gap:4px}
+  .period-btn{padding:5px 10px;font-size:11px}
+  .chart-card .chart-wrapper{height:160px}
+  .day-btn{width:36px;height:36px;font-size:11px}
+}

@@ -1,0 +1,102 @@
+<div class="routine-section">
+  <div class="chart-card card">
+    <div class="period-selector" id="routine-period-selector">
+      <button class="period-btn active" data-period="daily">Diário</button>
+      <button class="period-btn" data-period="weekly">Semanal</button>
+      <button class="period-btn" data-period="monthly">Mensal</button>
+      <button class="period-btn" data-period="yearly">Anual</button>
+    </div>
+    <div class="chart-wrapper">
+      <canvas id="routine-chart"></canvas>
+    </div>
+  </div>
+
+  <div class="motivation-card card">
+    <div class="motivation-header">
+      <span class="motivation-icon">💬</span>
+      <button class="refresh-btn" id="refresh-motivation" title="Nova frase">🔄</button>
+    </div>
+    <p class="motivation-text" id="motivation-text"></p>
+  </div>
+
+  <div class="day-selector-container">
+    <div class="day-selector" id="day-selector"></div>
+  </div>
+
+  <div class="goals-list" id="goals-list"></div>
+
+  <div class="progress-bar-container" id="progress-container">
+    <div class="progress-info">
+      <span>Progresso:</span>
+      <span id="progress-text">0% (0/0)</span>
+    </div>
+    <div class="progress-bar">
+      <div class="progress-fill" id="progress-fill"></div>
+    </div>
+  </div>
+
+  <button class="add-goal-btn" id="add-goal-btn" onclick="openGoalModal()">
+    + Adicionar Nova Meta
+  </button>
+</div>
+
+<div class="modal-overlay hidden" id="goal-modal">
+  <div class="modal-card">
+    <h2 class="modal-title gold-text">Nova Meta</h2>
+    <form id="goal-form">
+      <div class="form-group">
+        <label>Nome da meta</label>
+        <input type="text" id="goal-name" placeholder="Ex: Correr 5km" required />
+      </div>
+      <div class="form-group">
+        <label>Ícone</label>
+        <input type="text" id="goal-icon" placeholder="🎯" maxlength="4" />
+        <div class="emoji-grid">
+          <span class="emoji-option" data-emoji="🏋️">🏋️</span>
+          <span class="emoji-option" data-emoji="💪">💪</span>
+          <span class="emoji-option" data-emoji="🏃">🏃</span>
+          <span class="emoji-option" data-emoji="📚">📚</span>
+          <span class="emoji-option" data-emoji="💧">💧</span>
+          <span class="emoji-option" data-emoji="🥗">🥗</span>
+          <span class="emoji-option" data-emoji="🧘">🧘</span>
+          <span class="emoji-option" data-emoji="💻">💻</span>
+          <span class="emoji-option" data-emoji="🎵">🎵</span>
+          <span class="emoji-option" data-emoji="🎨">🎨</span>
+          <span class="emoji-option" data-emoji="✍️">✍️</span>
+          <span class="emoji-option" data-emoji="🧹">🧹</span>
+          <span class="emoji-option" data-emoji="💊">💊</span>
+          <span class="emoji-option" data-emoji="🚭">🚭</span>
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Horário (opcional)</label>
+        <input type="time" id="goal-time" />
+      </div>
+      <div class="form-group">
+        <label>Frequência</label>
+        <div class="freq-options">
+          <label class="radio-option"><input type="radio" name="frequency" value="daily" checked /> Diária</label>
+          <label class="radio-option"><input type="radio" name="frequency" value="weekly" /> Semanal</label>
+          <label class="radio-option"><input type="radio" name="frequency" value="monthly" /> Mensal</label>
+          <label class="radio-option"><input type="radio" name="frequency" value="custom" /> Customizada</label>
+        </div>
+        <div class="freq-days hidden" id="freq-days">
+          <span class="day-chip" data-day="sun">Dom</span>
+          <span class="day-chip" data-day="mon">Seg</span>
+          <span class="day-chip" data-day="tue">Ter</span>
+          <span class="day-chip" data-day="wed">Qua</span>
+          <span class="day-chip" data-day="thu">Qui</span>
+          <span class="day-chip" data-day="fri">Sex</span>
+          <span class="day-chip" data-day="sat">Sáb</span>
+        </div>
+        <div class="freq-custom hidden" id="freq-custom">
+          <input type="number" id="freq-days-per-week" min="1" max="7" placeholder="X vezes por semana" />
+        </div>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeGoalModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>

@@ -1,0 +1,147 @@
+<div class="settings-backdrop hidden" id="settings-backdrop" onclick="toggleSettings()"></div>
+<div class="settings-panel hidden" id="settings-panel">
+  <div class="settings-header">
+    <h2>Configurações</h2>
+    <button class="close-btn" onclick="toggleSettings()">✕</button>
+  </div>
+
+  <div class="settings-content">
+    <section class="settings-section">
+      <h3>Avatar</h3>
+      <div class="current-avatar" id="settings-avatar">
+        <% if (user.avatar && user.avatar.type === 'custom') { %>
+          <img src="<%= user.avatar.value %>" alt="Avatar" class="settings-avatar-img" />
+        <% } else { %>
+          <span class="settings-avatar-emoji"><%= (user.avatar && user.avatar.value) || '😀' %></span>
+        <% } %>
+      </div>
+      <label class="upload-btn">
+        📷 Upload Imagem
+        <input type="file" id="avatar-upload" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
+      </label>
+      <div class="avatar-grid" id="predefined-avatars">
+        <% const emojis = ['😀','😎','🦊','🐺','🦁','🐯','🐻','🐼','🦅','🐉']; %>
+        <% emojis.forEach(e => { %>
+          <span class="avatar-option <%= (user.avatar && user.avatar.value === e) ? 'selected' : '' %>" data-type="predefined" data-value="<%= e %>"><%= e %></span>
+        <% }); %>
+      </div>
+      <h4>Desbloqueáveis</h4>
+      <div class="avatar-grid" id="unlockable-avatars">
+        <% unlockableAvatars.forEach(a => { %>
+          <span class="avatar-option <%= user.level >= a.level ? '' : 'locked' %>"
+                data-type="unlockable" data-value="<%= a.emoji %>" data-level="<%= a.level %>"
+                title="<%= user.level >= a.level ? a.emoji : 'Nível ' + a.level %>">
+            <%= user.level >= a.level ? a.emoji : '🔒' %>
+            <% if (user.level < a.level) { %><small>Nv<%= a.level %></small><% } %>
+          </span>
+        <% }); %>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3>Perfil</h3>
+      <div class="profile-info">
+        <span class="profile-username">@<%= user.username %></span>
+        <span class="profile-level">Nível <%= user.level %> — <%= user.title %></span>
+      </div>
+      <button class="btn btn-ghost" onclick="openPasswordModal()">Alterar Senha</button>
+    </section>
+
+    <section class="settings-section">
+      <h3>Personalização</h3>
+      <div class="theme-options">
+        <button class="theme-btn <%= user.theme === 'gold' ? 'selected' : '' %>" data-theme="gold" style="background: #D4AF37" title="Dourado"></button>
+        <button class="theme-btn <%= user.theme === 'blue' ? 'selected' : '' %>" data-theme="blue" style="background: #2196F3" title="Azul"></button>
+        <button class="theme-btn <%= user.theme === 'green' ? 'selected' : '' %>" data-theme="green" style="background: #00E676" title="Verde"></button>
+        <button class="theme-btn <%= user.theme === 'pink' ? 'selected' : '' %>" data-theme="pink" style="background: #E91E63" title="Rosa"></button>
+      </div>
+    </section>
+
+    <section class="settings-section">
+      <h3>Gerenciar Metas</h3>
+      <button class="btn btn-ghost full-width" onclick="openManageGoals()">Gerenciar Metas →</button>
+    </section>
+
+    <section class="settings-section">
+      <h3>Dados</h3>
+      <label class="btn btn-ghost full-width" style="margin-bottom:8px;cursor:pointer">
+        📤 Importar Dados
+        <input type="file" id="import-data" accept=".json" hidden />
+      </label>
+      <a href="/api/profile/export" class="btn btn-ghost full-width" style="margin-bottom:8px">📥 Exportar Dados</a>
+      <button class="btn btn-danger full-width" onclick="openDeleteAccount()">🗑️ Apagar Conta</button>
+    </section>
+
+    <section class="settings-section about">
+      <p>ShapeU v1.0</p>
+      <p class="tagline">Molde o seu futuro</p>
+      <p>Feito por DEjoTTaa ❤️</p>
+    </section>
+
+    <div class="settings-section">
+      <a href="/logout" class="btn btn-ghost full-width">Sair</a>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="password-modal">
+  <div class="modal-card">
+    <h2 class="modal-title">Alterar Senha</h2>
+    <form id="password-form">
+      <div class="form-group">
+        <label>Senha atual</label>
+        <input type="password" id="current-password" required />
+      </div>
+      <div class="form-group">
+        <label>Nova senha</label>
+        <input type="password" id="new-password" required minlength="6" />
+      </div>
+      <div class="form-group">
+        <label>Confirmar nova senha</label>
+        <input type="password" id="confirm-password" required minlength="6" />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closePasswordModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="manage-goals-modal">
+  <div class="modal-card modal-wide">
+    <h2 class="modal-title gold-text">Gerenciar Metas</h2>
+    <div id="manage-goals-list"></div>
+    <button class="add-goal-btn" onclick="closeManageGoals(); openGoalModal();">+ Nova Meta</button>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="closeManageGoals()">Fechar</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="delete-account-modal">
+  <div class="modal-card">
+    <h2 class="modal-title" style="color: #FF5252">Apagar Conta</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">Esta ação é irreversível. Digite seu username para confirmar:</p>
+    <form id="delete-account-form">
+      <div class="form-group">
+        <input type="text" id="confirm-username" placeholder="Username" required />
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeDeleteAccount()">Cancelar</button>
+        <button type="submit" class="btn btn-danger">Apagar Permanentemente</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="import-confirm-modal">
+  <div class="modal-card">
+    <h2 class="modal-title" style="color: var(--neutral)">📤 Importar Dados</h2>
+    <p style="color: var(--text-secondary); margin-bottom: 16px;">Isso vai substituir todos os seus dados atuais (metas, logs e conquistas). Deseja continuar?</p>
+    <div class="modal-actions">
+      <button class="btn btn-ghost" onclick="cancelImport()">Cancelar</button>
+      <button class="btn btn-primary" onclick="confirmImport()">Sim, Importar</button>
+    </div>
+  </div>
+</div>

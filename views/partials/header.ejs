@@ -1,0 +1,14 @@
+<header class="header">
+  <div class="header-left">
+    <span class="header-logo">ShapeU</span>
+  </div>
+  <div class="header-right">
+    <button class="avatar-btn" id="avatar-btn" onclick="toggleSettings()">
+      <% if (user.avatar && user.avatar.type === 'custom') { %>
+        <img src="<%= user.avatar.value %>" alt="Avatar" class="avatar-img" />
+      <% } else { %>
+        <span class="avatar-emoji"><%= (user.avatar && user.avatar.value) || '😀' %></span>
+      <% } %>
+    </button>
+  </div>
+</header>

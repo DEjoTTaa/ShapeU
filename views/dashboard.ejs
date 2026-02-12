@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShapeU - Dashboard</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/dashboard.css">
+  <link rel="stylesheet" href="/css/routine.css">
+  <link rel="stylesheet" href="/css/stats.css">
+  <link rel="stylesheet" href="/css/achievements.css">
+  <link rel="stylesheet" href="/css/animations.css">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.4/dist/chart.umd.min.js"></script>
+</head>
+<body data-theme="<%= user.theme %>">
+  <script>
+    window.USER = <%- JSON.stringify(user) %>;
+    window.UNLOCKABLE_AVATARS = <%- JSON.stringify(unlockableAvatars) %>;
+  </script>
+
+  <%- include('partials/header') %>
+
+  <div class="tabs-container">
+    <div class="tabs">
+      <button class="tab active" data-tab="routine">🎯 <span class="tab-text">Rotina</span></button>
+      <button class="tab" data-tab="stats">📊 <span class="tab-text">Estatísticas</span></button>
+      <button class="tab" data-tab="achievements">🏅 <span class="tab-text">Conquistas</span></button>
+    </div>
+  </div>
+
+  <main class="main-content">
+    <div class="tab-content active" id="tab-routine">
+      <%- include('partials/routine') %>
+    </div>
+    <div class="tab-content" id="tab-stats">
+      <%- include('partials/stats') %>
+    </div>
+    <div class="tab-content" id="tab-achievements">
+      <%- include('partials/achievements') %>
+    </div>
+  </main>
+
+  <%- include('partials/settings') %>
+
+  <div id="achievement-popup" class="popup-overlay hidden">
+    <div class="popup-card achievement-popup-card">
+      <div class="popup-confetti" id="popup-confetti"></div>
+      <h2 class="popup-title gold-text">CONQUISTA DESBLOQUEADA!</h2>
+      <div class="popup-badge-icon" id="popup-badge-icon"></div>
+      <h3 class="popup-badge-name" id="popup-badge-name"></h3>
+      <p class="popup-badge-desc" id="popup-badge-desc"></p>
+      <div class="popup-xp" id="popup-xp"></div>
+      <p class="popup-quote" id="popup-quote"></p>
+      <div class="popup-actions">
+        <button class="btn btn-primary" onclick="showAchievementsTab()">🏅 Ver Conquistas</button>
+        <button class="btn btn-ghost" onclick="closeAchievementPopup()">✕ Fechar</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="levelup-popup" class="popup-overlay hidden">
+    <div class="popup-card levelup-popup-card">
+      <h2 class="popup-title gold-text">LEVEL UP!</h2>
+      <div class="popup-level" id="popup-level"></div>
+      <p class="popup-level-title" id="popup-level-title"></p>
+      <div class="popup-actions">
+        <button class="btn btn-primary" onclick="closeLevelUpPopup()">Incrível!</button>
+      </div>
+    </div>
+  </div>
+
+  <div id="xp-float-container"></div>
+
+  <script src="/js/app.js"></script>
+  <script src="/js/routine.js"></script>
+  <script src="/js/charts.js"></script>
+  <script src="/js/achievements.js"></script>
+  <script src="/js/xp.js"></script>
+  <script src="/js/settings.js"></script>
+</body>
+</html>

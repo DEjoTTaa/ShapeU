@@ -1,0 +1,41 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>ShapeU - Login</title>
+  <link rel="stylesheet" href="/css/main.css">
+  <link rel="stylesheet" href="/css/login.css">
+  <link rel="stylesheet" href="/css/animations.css">
+</head>
+<body class="auth-page">
+  <canvas id="particles-canvas"></canvas>
+  <div class="auth-container">
+    <div class="auth-card">
+      <div class="auth-logo">ShapeU</div>
+      <p class="auth-tagline">Molde o seu futuro</p>
+
+      <% if (error) { %>
+        <div class="auth-error shake"><%= error %></div>
+      <% } %>
+
+      <form method="POST" action="/login" class="auth-form">
+        <div class="input-group">
+          <span class="input-icon">👤</span>
+          <input type="text" name="username" placeholder="Username" required minlength="3" autocomplete="username" />
+        </div>
+        <div class="input-group">
+          <span class="input-icon">🔒</span>
+          <input type="password" name="password" placeholder="Senha" required minlength="6" autocomplete="current-password" />
+        </div>
+        <button type="submit" class="auth-btn">ENTRAR</button>
+      </form>
+
+      <p class="auth-toggle">
+        Não tem conta? <a href="/register">Criar conta</a>
+      </p>
+    </div>
+  </div>
+  <script src="/js/particles.js"></script>
+</body>
+</html>

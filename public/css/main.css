@@ -1,0 +1,84 @@
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+:root{
+  --primary:#D4AF37;--primary-light:#FFD700;
+  --bg-dark:#0A0A0A;--surface:#1A1A1A;--card:#141414;--card-hover:#1E1E1E;
+  --text:#FFFFFF;--text-secondary:#B0B0B0;
+  --positive:#00E676;--negative:#FF5252;--neutral:#FFC107;--accent:#FFC107;
+  --header-h:60px;--tabs-h:52px;
+  --glow-r:212;--glow-g:175;--glow-b:55;
+}
+[data-theme="blue"]{--primary:#2196F3;--primary-light:#64B5F6;--glow-r:33;--glow-g:150;--glow-b:243}
+[data-theme="green"]{--primary:#00E676;--primary-light:#69F0AE;--glow-r:0;--glow-g:230;--glow-b:118}
+[data-theme="pink"]{--primary:#E91E63;--primary-light:#F48FB1;--glow-r:233;--glow-g:30;--glow-b:99}
+html{font-size:16px;-webkit-text-size-adjust:100%}
+body{
+  font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,'Helvetica Neue',sans-serif;
+  background-color:var(--bg-dark);
+  background-image:
+    radial-gradient(ellipse at 20% 50%, rgba(var(--glow-r),var(--glow-g),var(--glow-b),.03) 0%, transparent 50%),
+    radial-gradient(ellipse at 80% 20%, rgba(var(--glow-r),var(--glow-g),var(--glow-b),.02) 0%, transparent 50%),
+    radial-gradient(ellipse at 50% 80%, rgba(var(--glow-r),var(--glow-g),var(--glow-b),.02) 0%, transparent 40%);
+  background-attachment:fixed;
+  color:var(--text);line-height:1.5;
+  min-height:100vh;overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;top:0;left:0;width:100%;height:100%;
+  background-image:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='none' fill-rule='evenodd'%3E%3Cg fill='%23D4AF37' fill-opacity='0.015'%3E%3Cpath d='M36 34v-4h-2v4h-4v2h4v4h2v-4h4v-2h-4zm0-30V0h-2v4h-4v2h4v4h2V6h4V4h-4zM6 34v-4H4v4H0v2h4v4h2v-4h4v-2H6zM6 4V0H4v4H0v2h4v4h2V6h4V4H6z'/%3E%3C/g%3E%3C/g%3E%3C/svg%3E");
+  pointer-events:none;z-index:0;
+}
+a{color:var(--primary);text-decoration:none}
+a:hover{color:var(--primary-light)}
+img{max-width:100%;display:block}
+input,button,select,textarea{font-family:inherit;font-size:inherit}
+.hidden{display:none!important}
+.gold-text{color:var(--primary)}
+.card{background:var(--surface);border-radius:12px;padding:16px;margin-bottom:10px}
+.btn{
+  padding:10px 20px;border-radius:8px;border:none;cursor:pointer;
+  font-weight:600;font-size:14px;transition:all .2s;display:inline-flex;
+  align-items:center;gap:6px;justify-content:center;
+}
+.btn-primary{
+  background:linear-gradient(135deg,var(--primary),var(--primary-light));
+  color:#000;
+}
+.btn-primary:hover{filter:brightness(1.1)}
+.btn-ghost{
+  background:transparent;border:1px solid #444;color:var(--text-secondary);
+}
+.btn-ghost:hover{border-color:var(--primary);color:var(--primary)}
+.btn-danger{background:#FF5252;color:#fff}
+.btn-danger:hover{background:#FF1744}
+.full-width{width:100%}
+.form-group{margin-bottom:16px}
+.form-group label{display:block;color:var(--text-secondary);margin-bottom:6px;font-size:14px}
+.form-group input[type="text"],
+.form-group input[type="password"],
+.form-group input[type="number"],
+.form-group input[type="time"]{
+  width:100%;padding:12px 16px;background:var(--bg-dark);
+  border:1px solid #333;border-radius:8px;color:var(--text);
+  transition:border-color .2s;
+}
+.form-group input:focus{outline:none;border-color:var(--primary)}
+.modal-overlay{
+  position:fixed;top:0;left:0;width:100%;height:100%;
+  background:rgba(0,0,0,.7);backdrop-filter:blur(4px);
+  display:flex;align-items:center;justify-content:center;
+  z-index:2000;animation:fadeIn .2s;
+}
+.modal-card{
+  background:var(--surface);border-radius:16px;padding:24px;
+  max-width:480px;width:90%;max-height:85vh;overflow-y:auto;
+  animation:scaleIn .3s ease;
+}
+.modal-wide{max-width:600px}
+.modal-title{font-size:20px;font-weight:700;margin-bottom:20px}
+.modal-actions{display:flex;gap:12px;justify-content:flex-end;margin-top:20px}
+::-webkit-scrollbar{width:6px}
+::-webkit-scrollbar-track{background:var(--bg-dark)}
+::-webkit-scrollbar-thumb{background:#333;border-radius:3px}
+::-webkit-scrollbar-thumb:hover{background:#555}
+@media(max-width:768px){html{font-size:15px}}
+@media(max-width:480px){html{font-size:14px}}

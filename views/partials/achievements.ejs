@@ -1,0 +1,29 @@
+<div class="achievements-section">
+  <div class="level-header card">
+    <div class="level-info">
+      <span class="level-label">🌟 Nível <span id="ach-level"><%= user.level %></span> — <span id="ach-title"><%= user.title %></span></span>
+    </div>
+    <div class="xp-bar-container">
+      <div class="xp-bar">
+        <div class="xp-bar-fill" id="ach-xp-fill"></div>
+      </div>
+      <span class="xp-text" id="ach-xp-text"></span>
+    </div>
+    <div class="ach-count" id="ach-count"></div>
+  </div>
+
+  <div class="ach-filters" id="ach-filters">
+    <button class="filter-btn active" data-filter="all">Todas</button>
+    <button class="filter-btn" data-filter="streaks">🔥 Streaks</button>
+    <button class="filter-btn" data-filter="totais">💪 Totais</button>
+    <button class="filter-btn" data-filter="perfeicao">🎯 Perfeição</button>
+    <button class="filter-btn" data-filter="horarios">🌅 Horários</button>
+    <button class="filter-btn" data-filter="marcos">📅 Marcos</button>
+    <button class="filter-btn" data-filter="secretas">❓ Secretas</button>
+    <button class="filter-btn" data-filter="locked">🔒 Bloqueadas</button>
+  </div>
+
+  <div class="ach-recent" id="ach-recent"></div>
+
+  <div class="ach-grid" id="ach-grid"></div>
+</div>

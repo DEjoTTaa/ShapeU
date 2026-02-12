@@ -1,0 +1,71 @@
+<div class="stats-section">
+  <div class="period-selector" id="stats-period-selector">
+    <button class="period-btn active" data-period="daily">Diário</button>
+    <button class="period-btn" data-period="weekly">Semanal</button>
+    <button class="period-btn" data-period="monthly">Mensal</button>
+    <button class="period-btn" data-period="yearly">Anual</button>
+  </div>
+
+  <div class="summary-grid" id="summary-grid">
+    <div class="summary-card" id="summary-rate">
+      <div class="summary-value">--</div>
+      <div class="summary-change"></div>
+      <div class="summary-label">Taxa de Conclusão</div>
+    </div>
+    <div class="summary-card" id="summary-streak">
+      <div class="summary-value">🔥 --</div>
+      <div class="summary-sublabel"></div>
+      <div class="summary-label">Melhor Streak</div>
+    </div>
+    <div class="summary-card" id="summary-total">
+      <div class="summary-value">--</div>
+      <div class="summary-sublabel"></div>
+      <div class="summary-label">Total Completadas</div>
+    </div>
+    <div class="summary-card" id="summary-consistency">
+      <div class="summary-value">--</div>
+      <div class="summary-sublabel"></div>
+      <div class="summary-label">Consistência</div>
+    </div>
+  </div>
+
+  <div class="strengths-card card" id="strengths-section">
+    <h3 class="section-title">Análise de Desempenho</h3>
+    <div class="strengths-grid">
+      <div class="strengths-col">
+        <h4 class="strengths-title positive">🟢 Pontos Fortes</h4>
+        <div id="strengths-list"></div>
+      </div>
+      <div class="strengths-col">
+        <h4 class="strengths-title negative">🔴 Pontos a Melhorar</h4>
+        <div id="improvements-list"></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="charts-grid">
+    <div class="chart-card card">
+      <h3 class="section-title">📈 Evolução</h3>
+      <div class="chart-wrapper"><canvas id="evolution-chart"></canvas></div>
+    </div>
+    <div class="chart-card card">
+      <h3 class="section-title">📊 Comparativo</h3>
+      <div class="chart-wrapper"><canvas id="comparison-chart"></canvas></div>
+    </div>
+    <div class="chart-card card">
+      <h3 class="section-title">🍩 Distribuição por Meta</h3>
+      <div class="chart-wrapper chart-donut"><canvas id="distribution-chart"></canvas></div>
+    </div>
+    <div class="chart-card card full-width">
+      <h3 class="section-title">🗓️ Calendário de Atividade</h3>
+      <div class="heatmap-container" id="heatmap-container"></div>
+    </div>
+  </div>
+
+  <div class="motivation-card card">
+    <div class="motivation-header">
+      <span class="motivation-icon">🤖</span>
+    </div>
+    <p class="motivation-text" id="analysis-text">Carregando análise...</p>
+  </div>
+</div>
