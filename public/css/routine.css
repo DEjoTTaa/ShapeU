@@ -113,17 +113,20 @@
 }
 .day-chip.selected{background:var(--primary);color:#000;border-color:var(--primary)}
 .day-chip:hover:not(.selected){border-color:var(--primary)}
+.manage-goals-list{max-height:50vh;overflow-y:auto;margin-bottom:16px}
 .manage-goal-item{
   display:flex;align-items:center;justify-content:space-between;
   padding:12px;background:var(--bg-dark);border-radius:8px;margin-bottom:8px;
+  transition:all .2s;
 }
-.manage-goal-info{display:flex;align-items:center;gap:8px}
+.manage-goal-item:hover{background:var(--surface)}
+.manage-goal-info{display:flex;align-items:center;gap:10px}
 .manage-goal-actions{display:flex;gap:8px}
 .manage-goal-actions button{
   background:none;border:none;cursor:pointer;font-size:16px;
-  padding:4px;transition:opacity .2s;opacity:.6;
+  padding:6px;transition:all .2s;opacity:.5;border-radius:6px;
 }
-.manage-goal-actions button:hover{opacity:1}
+.manage-goal-actions button:hover{opacity:1;background:rgba(255,82,82,.15)}
 .confetti-particle{
   position:absolute;width:6px;height:6px;border-radius:50%;
   pointer-events:none;animation:confettiFall 1s ease forwards;

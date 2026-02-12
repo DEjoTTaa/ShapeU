@@ -167,6 +167,79 @@ document.getElementById('refresh-motivation')?.addEventListener('click', async (
   }
 });
 
+// Manage goals modal
+let deleteGoalId = null;
+
+async function openManageGoals() {
+  document.getElementById('manage-goals-modal').classList.remove('hidden');
+  const list = document.getElementById('manage-goals-list');
+  list.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px">Carregando...</p>';
+
+  try {
+    const res = await fetch('/api/goals');
+    const goals = await res.json();
+
+    if (!goals || goals.length === 0) {
+      list.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px">Nenhuma meta criada ainda</p>';
+      return;
+    }
+
+    list.innerHTML = '';
+    goals.forEach(goal => {
+      const item = document.createElement('div');
+      item.className = 'manage-goal-item';
+      const freqType = goal.frequency?.type || 'daily';
+      const freqLabel = FREQ_LABELS[freqType] || freqType;
+      item.innerHTML = `
+        <div class="manage-goal-info">
+          <span style="font-size:20px">${goal.icon || '🎯'}</span>
+          <div>
+            <div style="font-weight:500;color:var(--text)">${goal.name}</div>
+            <div style="font-size:11px;color:var(--text-secondary)">${freqLabel}${goal.time ? ' · 🕐 ' + goal.time : ''}</div>
+          </div>
+        </div>
+        <div class="manage-goal-actions">
+          <button title="Excluir" onclick="requestDeleteGoal('${goal._id}', '${goal.name.replace(/'/g, "\\'")}')">🗑️</button>
+        </div>
+      `;
+      list.appendChild(item);
+    });
+  } catch (e) {
+    list.innerHTML = '<p style="text-align:center;color:var(--negative);padding:20px">Erro ao carregar metas</p>';
+  }
+}
+
+function closeManageGoals() {
+  document.getElementById('manage-goals-modal').classList.add('hidden');
+}
+
+function requestDeleteGoal(id, name) {
+  deleteGoalId = id;
+  document.getElementById('delete-goal-name').textContent = name;
+  document.getElementById('delete-goal-confirm').classList.remove('hidden');
+}
+
+function cancelDeleteGoal() {
+  deleteGoalId = null;
+  document.getElementById('delete-goal-confirm').classList.add('hidden');
+}
+
+async function confirmDeleteGoal() {
+  if (!deleteGoalId) return;
+  try {
+    const res = await fetch(`/api/goals/${deleteGoalId}`, { method: 'DELETE' });
+    const data = await res.json();
+    if (data.success) {
+      document.getElementById('delete-goal-confirm').classList.add('hidden');
+      deleteGoalId = null;
+      openManageGoals();
+      loadDailyGoals(state.currentDate);
+    }
+  } catch (e) {
+    console.error('Delete goal error:', e);
+  }
+}
+
 // Goal modal
 function openGoalModal() {
   document.getElementById('goal-modal').classList.remove('hidden');

@@ -35,9 +35,33 @@
     </div>
   </div>
 
-  <button class="add-goal-btn" id="add-goal-btn" onclick="openGoalModal()">
-    + Adicionar Nova Meta
+  <button class="add-goal-btn" id="add-goal-btn" onclick="openManageGoals()">
+    ⚙ Gerenciar Metas
   </button>
+</div>
+
+<div class="modal-overlay hidden" id="manage-goals-modal">
+  <div class="modal-card">
+    <h2 class="modal-title gold-text">Gerenciar Metas</h2>
+    <div class="manage-goals-list" id="manage-goals-list">
+      <p style="text-align:center;color:var(--text-secondary);padding:20px">Carregando...</p>
+    </div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="closeManageGoals()">Fechar</button>
+      <button type="button" class="btn btn-primary" onclick="closeManageGoals(); openGoalModal()">+ Nova Meta</button>
+    </div>
+  </div>
+</div>
+
+<div class="modal-overlay hidden" id="delete-goal-confirm">
+  <div class="modal-card" style="max-width:380px">
+    <h2 class="modal-title" style="color:var(--negative)">Excluir Meta</h2>
+    <p style="color:var(--text-secondary);margin-bottom:16px">Tem certeza que deseja excluir <strong id="delete-goal-name" style="color:var(--text)"></strong>?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="cancelDeleteGoal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" style="background:var(--negative);border-color:var(--negative)" onclick="confirmDeleteGoal()">Excluir</button>
+    </div>
+  </div>
 </div>
 
 <div class="modal-overlay hidden" id="goal-modal">
