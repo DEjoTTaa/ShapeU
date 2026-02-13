@@ -92,11 +92,17 @@ async function toggleGoal(goalId, completed, checkboxEl) {
     const data = await res.json();
 
     if (data.success) {
+      const card = checkboxEl.closest('.goal-card');
+
       if (completed) {
         checkboxEl.classList.add('checked');
         checkboxEl.textContent = '✓';
-        checkboxEl.closest('.goal-card').classList.add('completed');
+        card.classList.add('completed');
         miniConfetti(checkboxEl);
+
+        // Flash effect on card
+        card.classList.add('goal-flash');
+        setTimeout(() => card.classList.remove('goal-flash'), 400);
 
         if (data.xp_gained > 0) {
           const rect = checkboxEl.getBoundingClientRect();
@@ -105,7 +111,7 @@ async function toggleGoal(goalId, completed, checkboxEl) {
       } else {
         checkboxEl.classList.remove('checked');
         checkboxEl.textContent = '';
-        checkboxEl.closest('.goal-card').classList.remove('completed');
+        card.classList.remove('completed');
       }
 
       updateProgress(data.completed_count, data.total_count);
@@ -128,6 +134,9 @@ async function toggleGoal(goalId, completed, checkboxEl) {
       // Update user data
       window.USER.xp = data.new_xp;
       window.USER.level = data.new_level;
+
+      // Refresh metas after checkin
+      if (typeof loadMetas === 'function') loadMetas();
     }
   } catch (e) {
     console.error('Checkin error:', e);
@@ -256,7 +265,7 @@ function closeGoalModal() {
   document.getElementById('goal-modal').classList.add('hidden');
 }
 
-document.querySelectorAll('.emoji-option').forEach(el => {
+document.querySelectorAll('.emoji-option:not(.meta-emoji)').forEach(el => {
   el.addEventListener('click', () => {
     document.getElementById('goal-icon').value = el.dataset.emoji;
   });
@@ -318,6 +327,10 @@ async function loadRoutineChart(period) {
     const ctx = document.getElementById('routine-chart');
     if (!ctx) return;
 
+    const style = getComputedStyle(document.documentElement);
+    const primary = style.getPropertyValue('--primary').trim();
+    const primaryRgb = style.getPropertyValue('--primary-rgb').trim();
+
     routineChart = new Chart(ctx, {
       type: data.type || 'bar',
       data: {
@@ -325,13 +338,13 @@ async function loadRoutineChart(period) {
         datasets: [{
           label: 'Taxa de Conclusão (%)',
           data: data.data || [],
-          backgroundColor: data.data?.map(v => v >= (data.average||50) ? 'rgba(212,175,55,0.7)' : 'rgba(212,175,55,0.3)') || [],
-          borderColor: 'rgba(212,175,55,1)',
+          backgroundColor: (data.data||[]).map(v => v >= (data.average||50) ? `rgba(${primaryRgb},0.7)` : `rgba(${primaryRgb},0.3)`),
+          borderColor: primary,
           borderWidth: data.type === 'line' ? 2 : 0,
-          borderRadius: 4,
+          borderRadius: 6,
           fill: data.type === 'line',
           tension: 0.3,
-          pointBackgroundColor: 'rgba(212,175,55,1)',
+          pointBackgroundColor: primary,
           pointRadius: data.type === 'line' ? 4 : 0,
         }]
       },
@@ -340,11 +353,14 @@ async function loadRoutineChart(period) {
         maintainAspectRatio: false,
         animation: { duration: 1000, easing: 'easeOutQuart' },
         plugins: { legend: { display: false }, tooltip: {
-          backgroundColor: '#1A1A1A', titleColor: '#fff', bodyColor: '#B0B0B0',
-          borderColor: '#333', borderWidth: 1
+          backgroundColor: 'rgba(20,20,20,0.95)',
+          titleColor: '#fff', bodyColor: '#B0B0B0',
+          borderColor: `rgba(${primaryRgb},0.2)`, borderWidth: 1,
+          cornerRadius: 8,
+          padding: 10,
         }},
         scales: {
-          y: { beginAtZero: true, max: 100, grid: { color: '#333' }, ticks: { color: '#B0B0B0', callback: v => v + '%' }},
+          y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#B0B0B0', callback: v => v + '%' }},
           x: { grid: { display: false }, ticks: { color: '#B0B0B0' }}
         }
       }

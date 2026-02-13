@@ -15,10 +15,7 @@
           <span class="settings-avatar-emoji"><%= (user.avatar && user.avatar.value) || '😀' %></span>
         <% } %>
       </div>
-      <label class="upload-btn">
-        📷 Upload Imagem
-        <input type="file" id="avatar-upload" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
-      </label>
+      <button class="upload-btn" id="open-avatar-modal-btn" type="button">📷 Upload Imagem</button>
       <div class="avatar-grid" id="predefined-avatars">
         <% const emojis = ['😀','😎','🦊','🐺','🦁','🐯','🐻','🐼','🦅','🐉']; %>
         <% emojis.forEach(e => { %>
@@ -49,11 +46,22 @@
 
     <section class="settings-section">
       <h3>Personalização</h3>
-      <div class="theme-options">
-        <button class="theme-btn <%= user.theme === 'gold' ? 'selected' : '' %>" data-theme="gold" style="background: #D4AF37" title="Dourado"></button>
-        <button class="theme-btn <%= user.theme === 'blue' ? 'selected' : '' %>" data-theme="blue" style="background: #2196F3" title="Azul"></button>
-        <button class="theme-btn <%= user.theme === 'green' ? 'selected' : '' %>" data-theme="green" style="background: #00E676" title="Verde"></button>
-        <button class="theme-btn <%= user.theme === 'pink' ? 'selected' : '' %>" data-theme="pink" style="background: #E91E63" title="Rosa"></button>
+      <div class="theme-grid" id="theme-grid">
+        <div class="theme-circle <%= user.theme === 'dourado' ? 'selected' : '' %>" data-theme="dourado" style="background:#D4AF37" title="Dourado Clássico"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'azul-royal' ? 'selected' : '' %>" data-theme="azul-royal" style="background:#2196F3" title="Azul Royal"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'verde-esmeralda' ? 'selected' : '' %>" data-theme="verde-esmeralda" style="background:#00E676" title="Verde Esmeralda"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'rosa-neon' ? 'selected' : '' %>" data-theme="rosa-neon" style="background:#E91E63" title="Rosa Neon"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'roxo-imperial' ? 'selected' : '' %>" data-theme="roxo-imperial" style="background:#9C27B0" title="Roxo Imperial"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'laranja-fogo' ? 'selected' : '' %>" data-theme="laranja-fogo" style="background:#FF5722" title="Laranja Fogo"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'ciano-eletrico' ? 'selected' : '' %>" data-theme="ciano-eletrico" style="background:#00BCD4" title="Ciano Elétrico"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'vermelho-rubi' ? 'selected' : '' %>" data-theme="vermelho-rubi" style="background:#F44336" title="Vermelho Rubi"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'ambar' ? 'selected' : '' %>" data-theme="ambar" style="background:#FFC107" title="Âmbar"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'indigo' ? 'selected' : '' %>" data-theme="indigo" style="background:#3F51B5" title="Índigo"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'teal' ? 'selected' : '' %>" data-theme="teal" style="background:#009688" title="Teal"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'lima' ? 'selected' : '' %>" data-theme="lima" style="background:#CDDC39" title="Lima"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'coral' ? 'selected' : '' %>" data-theme="coral" style="background:#FF7043" title="Coral"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'lavanda' ? 'selected' : '' %>" data-theme="lavanda" style="background:#7E57C2" title="Lavanda"><span class="theme-check">✓</span></div>
+        <div class="theme-circle <%= user.theme === 'prata' ? 'selected' : '' %>" data-theme="prata" style="background:#9E9E9E" title="Prata"><span class="theme-check">✓</span></div>
       </div>
     </section>
 
@@ -73,13 +81,38 @@
     </section>
 
     <section class="settings-section about">
-      <p>ShapeU v1.0</p>
+      <p>ShapeU v2.0</p>
       <p class="tagline">Molde o seu futuro</p>
       <p>Feito por DEjoTTaa ❤️</p>
     </section>
 
     <div class="settings-section">
       <a href="/logout" class="btn btn-ghost full-width">Sair</a>
+    </div>
+  </div>
+</div>
+
+<!-- Avatar Preview Modal -->
+<div class="modal-overlay hidden" id="avatar-preview-modal">
+  <div class="modal-card" style="max-width:400px">
+    <h2 class="modal-title gold-text">Alterar Avatar</h2>
+    <div class="avatar-preview-container">
+      <div class="avatar-preview-circle" id="avatar-preview-circle">
+        <span style="font-size:48px;color:var(--text-secondary)">📷</span>
+      </div>
+    </div>
+    <label class="btn btn-ghost full-width" style="margin-bottom:12px;cursor:pointer" id="avatar-file-label">
+      Selecionar Imagem
+      <input type="file" id="avatar-upload" accept="image/jpeg,image/png,image/gif,image/webp" hidden />
+    </label>
+    <div class="avatar-file-info hidden" id="avatar-file-info">
+      <span id="avatar-file-name"></span>
+      <span id="avatar-file-size"></span>
+    </div>
+    <div class="avatar-file-error hidden" id="avatar-file-error"></div>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="closeAvatarModal()">Cancelar</button>
+      <button type="button" class="btn btn-primary" id="save-avatar-btn" disabled onclick="saveAvatarFromModal()">Salvar Avatar</button>
     </div>
   </div>
 </div>

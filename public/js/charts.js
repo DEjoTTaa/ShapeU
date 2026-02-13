@@ -1,6 +1,15 @@
 let evolutionChart = null, comparisonChart = null, distributionChart = null;
 let currentStatsPeriod = 'daily';
 
+function getThemeColors() {
+  const style = getComputedStyle(document.documentElement);
+  return {
+    primary: style.getPropertyValue('--primary').trim(),
+    primaryLight: style.getPropertyValue('--primary-light').trim(),
+    primaryRgb: style.getPropertyValue('--primary-rgb').trim(),
+  };
+}
+
 async function loadStats(period) {
   currentStatsPeriod = period;
   await Promise.all([
@@ -96,6 +105,7 @@ async function loadEvolutionChart(period) {
     if (evolutionChart) evolutionChart.destroy();
     const ctx = document.getElementById('evolution-chart');
     if (!ctx) return;
+    const { primaryRgb, primary } = getThemeColors();
     evolutionChart = new Chart(ctx, {
       type: d.type || 'bar',
       data: {
@@ -104,10 +114,10 @@ async function loadEvolutionChart(period) {
           label: 'Conclusão %',
           data: d.data || [],
           backgroundColor: (d.data||[]).map(v => v >= (d.average||50) ? 'rgba(0,230,118,0.6)' : 'rgba(255,82,82,0.6)'),
-          borderColor: 'rgba(212,175,55,1)',
+          borderColor: primary,
           borderWidth: d.type==='line'?2:0,
-          borderRadius: 4, tension: .3, fill: d.type==='line',
-          pointBackgroundColor: 'rgba(212,175,55,1)', pointRadius: d.type==='line'?4:0
+          borderRadius: 6, tension: .3, fill: d.type==='line',
+          pointBackgroundColor: primary, pointRadius: d.type==='line'?4:0
         }]
       },
       options: chartOptions()
@@ -127,8 +137,8 @@ async function loadComparisonChart(period) {
       data: {
         labels: d.labels || [],
         datasets: [
-          { label: 'Atual', data: d.current || [], backgroundColor: 'rgba(0,230,118,0.6)', borderRadius: 4 },
-          { label: 'Anterior', data: d.previous || [], backgroundColor: 'rgba(255,82,82,0.4)', borderRadius: 4 }
+          { label: 'Atual', data: d.current || [], backgroundColor: 'rgba(0,230,118,0.6)', borderRadius: 6 },
+          { label: 'Anterior', data: d.previous || [], backgroundColor: 'rgba(255,82,82,0.4)', borderRadius: 6 }
         ]
       },
       options: chartOptions()
@@ -158,8 +168,12 @@ async function loadDistributionChart(period) {
         responsive: true, maintainAspectRatio: false,
         animation: { duration: 1000, easing: 'easeOutQuart' },
         plugins: {
-          legend: { position: 'bottom', labels: { color: '#B0B0B0', font: { size: 11 }, padding: 12 }},
-          tooltip: { backgroundColor: '#1A1A1A', titleColor: '#fff', bodyColor: '#B0B0B0' }
+          legend: { position: 'bottom', labels: { color: '#B0B0B0', font: { size: 11, family: 'Inter' }, padding: 12 }},
+          tooltip: {
+            backgroundColor: 'rgba(20,20,20,0.95)',
+            titleColor: '#fff', bodyColor: '#B0B0B0',
+            cornerRadius: 8, padding: 10,
+          }
         },
         cutout: '65%'
       },
@@ -171,9 +185,9 @@ async function loadDistributionChart(period) {
           c.textAlign = 'center';
           c.textBaseline = 'middle';
           c.fillStyle = '#fff';
-          c.font = 'bold 24px sans-serif';
+          c.font = "bold 24px 'Inter', sans-serif";
           c.fillText(avg + '%', width/2, height/2 - 8);
-          c.font = '12px sans-serif';
+          c.font = "12px 'Inter', sans-serif";
           c.fillStyle = '#B0B0B0';
           c.fillText('média', width/2, height/2 + 14);
           c.restore();
@@ -239,16 +253,21 @@ async function loadAnalysis(period) {
 }
 
 function chartOptions() {
+  const { primaryRgb } = getThemeColors();
   return {
     responsive: true, maintainAspectRatio: false,
     animation: { duration: 1000, easing: 'easeOutQuart' },
     plugins: { legend: { display: false }, tooltip: {
-      backgroundColor: '#1A1A1A', titleColor: '#fff', bodyColor: '#B0B0B0',
-      borderColor: '#333', borderWidth: 1
+      backgroundColor: 'rgba(20,20,20,0.95)',
+      titleColor: '#fff', bodyColor: '#B0B0B0',
+      borderColor: `rgba(${primaryRgb},0.2)`, borderWidth: 1,
+      cornerRadius: 8, padding: 10,
+      titleFont: { family: 'Inter' },
+      bodyFont: { family: 'Inter' },
     }},
     scales: {
-      y: { beginAtZero: true, max: 100, grid: { color: '#333' }, ticks: { color: '#B0B0B0', callback: v => v+'%' }},
-      x: { grid: { display: false }, ticks: { color: '#B0B0B0', maxRotation: 45 }}
+      y: { beginAtZero: true, max: 100, grid: { color: 'rgba(255,255,255,0.04)' }, ticks: { color: '#B0B0B0', callback: v => v+'%', font: { family: 'Inter' } }},
+      x: { grid: { display: false }, ticks: { color: '#B0B0B0', maxRotation: 45, font: { family: 'Inter' } }}
     }
   };
 }

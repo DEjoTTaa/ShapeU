@@ -1,3 +1,22 @@
+// Theme definitions
+const THEMES = {
+  'dourado':        { primary: '#D4AF37', light: '#FFD700', rgb: '212,175,55', lightRgb: '255,215,0' },
+  'azul-royal':     { primary: '#2196F3', light: '#64B5F6', rgb: '33,150,243', lightRgb: '100,181,246' },
+  'verde-esmeralda':{ primary: '#00E676', light: '#69F0AE', rgb: '0,230,118', lightRgb: '105,240,174' },
+  'rosa-neon':      { primary: '#E91E63', light: '#F48FB1', rgb: '233,30,99', lightRgb: '244,143,177' },
+  'roxo-imperial':  { primary: '#9C27B0', light: '#CE93D8', rgb: '156,39,176', lightRgb: '206,147,216' },
+  'laranja-fogo':   { primary: '#FF5722', light: '#FF8A65', rgb: '255,87,34', lightRgb: '255,138,101' },
+  'ciano-eletrico': { primary: '#00BCD4', light: '#4DD0E1', rgb: '0,188,212', lightRgb: '77,208,225' },
+  'vermelho-rubi':  { primary: '#F44336', light: '#EF9A9A', rgb: '244,67,54', lightRgb: '239,154,154' },
+  'ambar':          { primary: '#FFC107', light: '#FFD54F', rgb: '255,193,7', lightRgb: '255,213,79' },
+  'indigo':         { primary: '#3F51B5', light: '#7986CB', rgb: '63,81,181', lightRgb: '121,134,203' },
+  'teal':           { primary: '#009688', light: '#4DB6AC', rgb: '0,150,136', lightRgb: '77,182,172' },
+  'lima':           { primary: '#CDDC39', light: '#E6EE9C', rgb: '205,220,57', lightRgb: '230,238,156' },
+  'coral':          { primary: '#FF7043', light: '#FFAB91', rgb: '255,112,67', lightRgb: '255,171,145' },
+  'lavanda':        { primary: '#7E57C2', light: '#B39DDB', rgb: '126,87,194', lightRgb: '179,157,219' },
+  'prata':          { primary: '#9E9E9E', light: '#E0E0E0', rgb: '158,158,158', lightRgb: '224,224,224' }
+};
+
 // Global state
 const state = {
   currentTab: 'routine',
@@ -33,11 +52,29 @@ document.querySelectorAll('.tab').forEach(tab => {
   });
 });
 
-// Apply theme
+// Apply theme with CSS variables
 function applyTheme(theme) {
-  document.body.setAttribute('data-theme', theme);
+  const el = document.documentElement;
+  el.setAttribute('data-theme', theme);
+
+  // Also set CSS variables directly for immediate effect
+  const t = THEMES[theme];
+  if (t) {
+    el.style.setProperty('--primary', t.primary);
+    el.style.setProperty('--primary-light', t.light);
+    el.style.setProperty('--primary-rgb', t.rgb);
+    el.style.setProperty('--primary-light-rgb', t.lightRgb);
+  }
 }
-applyTheme(window.USER.theme);
+
+// Handle legacy theme names from old data
+function migrateThemeName(theme) {
+  const legacy = { 'gold': 'dourado', 'blue': 'azul-royal', 'green': 'verde-esmeralda', 'pink': 'rosa-neon' };
+  return legacy[theme] || theme || 'dourado';
+}
+
+const currentTheme = migrateThemeName(window.USER.theme);
+applyTheme(currentTheme);
 
 // Typewriter effect
 function typewriter(element, text, speed = 30) {
@@ -71,7 +108,10 @@ function showXPFloat(amount, x, y) {
 // Mini confetti on checkbox
 function miniConfetti(element) {
   const rect = element.getBoundingClientRect();
-  const colors = ['#D4AF37', '#FFD700', '#FFC107', '#FF9800', '#FF5722', '#4CAF50', '#2196F3'];
+  const style = getComputedStyle(document.documentElement);
+  const primary = style.getPropertyValue('--primary').trim();
+  const primaryLight = style.getPropertyValue('--primary-light').trim();
+  const colors = [primary, primaryLight, '#FFC107', '#FF9800', '#FF5722', '#4CAF50', '#2196F3'];
   for (let i = 0; i < 12; i++) {
     const p = document.createElement('div');
     p.className = 'confetti-particle';
@@ -89,7 +129,9 @@ function popupConfetti() {
   const container = document.getElementById('popup-confetti');
   if (!container) return;
   container.innerHTML = '';
-  const colors = ['#D4AF37', '#FFD700', '#FF5252', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800'];
+  const style = getComputedStyle(document.documentElement);
+  const primary = style.getPropertyValue('--primary').trim();
+  const colors = [primary, '#FFD700', '#FF5252', '#4CAF50', '#2196F3', '#9C27B0', '#FF9800'];
   for (let i = 0; i < 40; i++) {
     const p = document.createElement('div');
     p.style.cssText = `
@@ -142,10 +184,9 @@ function showAchievementsTab() {
 
 // Level up popup
 function showLevelUp(level, title) {
-  // Flash effect
   const flash = document.createElement('div');
   flash.style.cssText = `position:fixed;top:0;left:0;width:100%;height:100%;
-    background:linear-gradient(135deg,rgba(212,175,55,.3),rgba(255,215,0,.2));
+    background:linear-gradient(135deg,rgba(var(--primary-rgb),.3),rgba(var(--primary-light-rgb),.2));
     z-index:2999;pointer-events:none;animation:levelFlash .5s ease forwards;`;
   document.body.appendChild(flash);
   setTimeout(() => flash.remove(), 500);
@@ -169,4 +210,5 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDailyGoals(state.currentDate);
   loadMotivation();
   initDaySelector();
+  if (typeof loadMetas === 'function') loadMetas();
 });

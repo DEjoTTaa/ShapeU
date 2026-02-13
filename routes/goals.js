@@ -5,6 +5,7 @@ const DailyLog = require('../models/DailyLog');
 const User = require('../models/User');
 const { classifyEffort } = require('../services/gemini');
 const { calculateCheckinXP, calculateLevel } = require('../services/xp');
+const Meta = require('../models/Meta');
 const { checkAchievements } = require('../services/achievements');
 const router = express.Router();
 
@@ -309,6 +310,46 @@ router.post('/api/goals/checkin', auth, async (req, res) => {
 
     const levelUp = user.level > oldLevel;
     const newAchievements = await checkAchievements(req.user._id);
+
+    // Auto-increment linked Metas
+    if (completed) {
+      const linkedMetas = await Meta.find({
+        userId: req.user._id,
+        linkedGoalId: goalId,
+        isCompleted: false
+      });
+      for (const meta of linkedMetas) {
+        const today = logDate;
+        if (today >= meta.startDate && today <= meta.endDate) {
+          meta.currentValue = Math.min((meta.currentValue || 0) + 1, meta.targetValue);
+          if (meta.currentValue >= meta.targetValue) {
+            meta.isCompleted = true;
+            meta.completedAt = new Date();
+            // Award 100 XP bonus for completing a meta
+            const metaUser = await User.findById(req.user._id);
+            metaUser.xp = (metaUser.xp || 0) + 100;
+            xpGained += 100;
+            const metaLevelInfo = calculateLevel(metaUser.xp);
+            metaUser.level = metaLevelInfo.level;
+            await metaUser.save();
+          }
+          await meta.save();
+        }
+      }
+    } else {
+      // Decrement linked Metas on uncheck
+      const linkedMetas = await Meta.find({
+        userId: req.user._id,
+        linkedGoalId: goalId,
+        isCompleted: false
+      });
+      for (const meta of linkedMetas) {
+        if (meta.currentValue > 0) {
+          meta.currentValue -= 1;
+          await meta.save();
+        }
+      }
+    }
 
     const updatedUser = await User.findById(req.user._id);
 

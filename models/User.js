@@ -21,8 +21,7 @@ const userSchema = new mongoose.Schema({
   },
   theme: {
     type: String,
-    enum: ['gold', 'blue', 'green', 'pink'],
-    default: 'gold'
+    default: 'dourado'
   },
   level: { type: Number, default: 1 },
   xp: { type: Number, default: 0 },

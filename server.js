@@ -42,6 +42,7 @@ app.use('/', require('./routes/goals'));
 app.use('/', require('./routes/stats'));
 app.use('/', require('./routes/achievements'));
 app.use('/', require('./routes/profile'));
+app.use('/', require('./routes/metas'));
 app.use('/', require('./routes/ai'));
 
 app.get('/health', (req, res) => {

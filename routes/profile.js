@@ -6,6 +6,7 @@ const User = require('../models/User');
 const Goal = require('../models/Goal');
 const DailyLog = require('../models/DailyLog');
 const Achievement = require('../models/Achievement');
+const Meta = require('../models/Meta');
 const { checkAchievements } = require('../services/achievements');
 const router = express.Router();
 
@@ -46,7 +47,12 @@ router.put('/api/profile/avatar', auth, upload.single('avatar'), async (req, res
 router.put('/api/profile/theme', auth, async (req, res) => {
   try {
     const { theme } = req.body;
-    if (!['gold', 'blue', 'green', 'pink'].includes(theme)) {
+    const validThemes = [
+      'dourado', 'azul-royal', 'verde-esmeralda', 'rosa-neon', 'roxo-imperial',
+      'laranja-fogo', 'ciano-eletrico', 'vermelho-rubi', 'ambar', 'indigo',
+      'teal', 'lima', 'coral', 'lavanda', 'prata'
+    ];
+    if (!validThemes.includes(theme)) {
       return res.status(400).json({ error: 'Tema inválido' });
     }
     const user = await User.findById(req.user._id);
@@ -88,13 +94,15 @@ router.get('/api/profile/export', auth, async (req, res) => {
     const goals = await Goal.find({ userId: req.user._id });
     const logs = await DailyLog.find({ userId: req.user._id });
     const achievements = await Achievement.find({ userId: req.user._id });
+    const metas = await Meta.find({ userId: req.user._id });
 
     const data = {
       exportDate: new Date().toISOString(),
       user,
       goals,
       dailyLogs: logs,
-      achievements
+      achievements,
+      metas
     };
 
     res.setHeader('Content-Type', 'application/json');
@@ -117,7 +125,8 @@ router.post('/api/profile/import', auth, async (req, res) => {
     await Promise.all([
       Goal.deleteMany({ userId }),
       DailyLog.deleteMany({ userId }),
-      Achievement.deleteMany({ userId })
+      Achievement.deleteMany({ userId }),
+      Meta.deleteMany({ userId })
     ]);
 
     if (data.goals && data.goals.length > 0) {
@@ -138,6 +147,14 @@ router.post('/api/profile/import', auth, async (req, res) => {
       for (const ach of achs) {
         try { await Achievement.create(ach); }
         catch (e) { if (e.code !== 11000) console.error('Import ach error:', e.message); }
+      }
+    }
+
+    if (data.metas && data.metas.length > 0) {
+      const metas = data.metas.map(m => ({ ...m, _id: undefined, userId }));
+      for (const meta of metas) {
+        try { await Meta.create(meta); }
+        catch (e) { if (e.code !== 11000) console.error('Import meta error:', e.message); }
       }
     }
 
@@ -169,7 +186,8 @@ router.delete('/api/profile/account', auth, async (req, res) => {
       User.deleteOne({ _id: req.user._id }),
       Goal.deleteMany({ userId: req.user._id }),
       DailyLog.deleteMany({ userId: req.user._id }),
-      Achievement.deleteMany({ userId: req.user._id })
+      Achievement.deleteMany({ userId: req.user._id }),
+      Meta.deleteMany({ userId: req.user._id })
     ]);
 
     res.clearCookie('token');

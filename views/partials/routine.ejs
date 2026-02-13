@@ -35,8 +35,23 @@
     </div>
   </div>
 
-  <button class="add-goal-btn" id="add-goal-btn" onclick="openManageGoals()">
-    ⚙ Gerenciar Metas
+  <!-- Metas Section -->
+  <div class="metas-divider">
+    <span class="metas-divider-line"></span>
+    <span class="metas-divider-text">🎯 Minhas Metas</span>
+    <span class="metas-divider-line"></span>
+  </div>
+
+  <div class="metas-list" id="metas-list">
+    <p style="text-align:center;color:var(--text-secondary);padding:20px;font-size:14px">Carregando metas...</p>
+  </div>
+
+  <button class="add-goal-btn" id="create-meta-btn" onclick="openCreateMetaModal()">
+    + Criar Nova Meta
+  </button>
+
+  <button class="add-goal-btn" id="add-goal-btn" onclick="openManageGoals()" style="margin-top:6px">
+    ⚙ Gerenciar Metas Diárias
   </button>
 </div>
 
@@ -122,5 +137,84 @@
         <button type="submit" class="btn btn-primary">Salvar</button>
       </div>
     </form>
+  </div>
+</div>
+
+<!-- Create/Edit Meta Modal -->
+<div class="modal-overlay hidden" id="meta-modal">
+  <div class="modal-card">
+    <h2 class="modal-title gold-text" id="meta-modal-title">Criar Nova Meta</h2>
+    <form id="meta-form">
+      <input type="hidden" id="meta-edit-id" value="" />
+      <div class="form-group">
+        <label>Nome da meta</label>
+        <input type="text" id="meta-name" placeholder="Ex: Ir na academia 20 vezes" required />
+      </div>
+      <div class="form-group">
+        <label>Ícone</label>
+        <input type="text" id="meta-icon" placeholder="🎯" maxlength="4" />
+        <div class="emoji-grid">
+          <span class="emoji-option meta-emoji" data-emoji="🏋️">🏋️</span>
+          <span class="emoji-option meta-emoji" data-emoji="📚">📚</span>
+          <span class="emoji-option meta-emoji" data-emoji="🏃">🏃</span>
+          <span class="emoji-option meta-emoji" data-emoji="💧">💧</span>
+          <span class="emoji-option meta-emoji" data-emoji="🧘">🧘</span>
+          <span class="emoji-option meta-emoji" data-emoji="💻">💻</span>
+          <span class="emoji-option meta-emoji" data-emoji="🎵">🎵</span>
+          <span class="emoji-option meta-emoji" data-emoji="✍️">✍️</span>
+          <span class="emoji-option meta-emoji" data-emoji="🥗">🥗</span>
+          <span class="emoji-option meta-emoji" data-emoji="💪">💪</span>
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Valor alvo</label>
+          <input type="number" id="meta-target" min="1" placeholder="20" required />
+        </div>
+        <div style="flex:1">
+          <label>Unidade</label>
+          <select id="meta-unit" style="width:100%;padding:12px 16px;background:var(--bg-dark);border:1px solid #333;border-radius:8px;color:var(--text);">
+            <option value="vezes">vezes</option>
+            <option value="horas">horas</option>
+            <option value="dias">dias</option>
+            <option value="km">km</option>
+            <option value="litros">litros</option>
+          </select>
+        </div>
+      </div>
+      <div class="form-group" style="display:flex;gap:12px">
+        <div style="flex:1">
+          <label>Data início</label>
+          <input type="date" id="meta-start" required style="width:100%;padding:12px 16px;background:var(--bg-dark);border:1px solid #333;border-radius:8px;color:var(--text);color-scheme:dark" />
+        </div>
+        <div style="flex:1">
+          <label>Data fim</label>
+          <input type="date" id="meta-end" required style="width:100%;padding:12px 16px;background:var(--bg-dark);border:1px solid #333;border-radius:8px;color:var(--text);color-scheme:dark" />
+        </div>
+      </div>
+      <div class="form-group">
+        <label>Vincular a meta diária (opcional)</label>
+        <select id="meta-linked-goal" style="width:100%;padding:12px 16px;background:var(--bg-dark);border:1px solid #333;border-radius:8px;color:var(--text);">
+          <option value="">Nenhuma (progresso manual)</option>
+        </select>
+        <small style="color:var(--text-secondary);font-size:11px;margin-top:4px;display:block">Ao vincular, cada check-in na rotina diária incrementa o progresso automaticamente</small>
+      </div>
+      <div class="modal-actions">
+        <button type="button" class="btn btn-ghost" onclick="closeMetaModal()">Cancelar</button>
+        <button type="submit" class="btn btn-primary">Salvar Meta</button>
+      </div>
+    </form>
+  </div>
+</div>
+
+<!-- Delete Meta Confirm -->
+<div class="modal-overlay hidden" id="delete-meta-confirm">
+  <div class="modal-card" style="max-width:380px">
+    <h2 class="modal-title" style="color:var(--negative)">Excluir Meta</h2>
+    <p style="color:var(--text-secondary);margin-bottom:16px">Tem certeza que deseja excluir esta meta?</p>
+    <div class="modal-actions">
+      <button type="button" class="btn btn-ghost" onclick="cancelDeleteMeta()">Cancelar</button>
+      <button type="button" class="btn btn-primary" style="background:var(--negative);border-color:var(--negative)" onclick="confirmDeleteMeta()">Excluir</button>
+    </div>
   </div>
 </div>

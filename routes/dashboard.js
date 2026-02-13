@@ -13,7 +13,7 @@ router.get('/dashboard', auth, async (req, res) => {
       _id: user._id,
       username: user.username,
       avatar: user.avatar,
-      theme: user.theme || 'gold',
+      theme: user.theme || 'dourado',
       level: user.level,
       xp: user.xp,
       xpInLevel: levelInfo.xpInCurrentLevel,
