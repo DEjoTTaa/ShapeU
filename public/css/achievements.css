@@ -91,8 +91,9 @@
 }
 .filter-btn.active{background:var(--primary);color:#000;border-color:var(--primary);font-weight:600}
 .filter-btn:hover:not(.active){border-color:rgba(var(--primary-rgb),.3);color:var(--primary)}
-.ach-recent{margin-bottom:8px}
-.ach-recent-title{font-size:13px;color:#666;margin-bottom:8px}
+.ach-recent{margin-bottom:0}
+.ach-recent:not(:empty){margin-bottom:10px}
+.ach-recent-title{font-size:13px;font-weight:600;color:var(--primary);margin-bottom:10px;letter-spacing:-.01em}
 
 /* Badge Grid */
 .ach-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}

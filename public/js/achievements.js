@@ -37,14 +37,14 @@ async function loadAchievements() {
 }
 
 function renderBadgesShowcase() {
+  const showcase = document.getElementById('badges-showcase');
   const strip = document.getElementById('badges-showcase-strip');
   const countEl = document.getElementById('badges-showcase-count');
-  if (!strip) return;
+  if (!strip || !showcase) return;
 
   const unlocked = allAchievements
     .filter(a => a.unlocked)
     .sort((a, b) => {
-      // Sort by rarity (rarest first), then by date (newest first)
       const ra = RARITY_ORDER[a.rarity] ?? 99;
       const rb = RARITY_ORDER[b.rarity] ?? 99;
       if (ra !== rb) return ra - rb;
@@ -55,11 +55,13 @@ function renderBadgesShowcase() {
     countEl.textContent = unlocked.length + ' desbloqueada' + (unlocked.length !== 1 ? 's' : '');
   }
 
+  // Hide the entire showcase if no badges unlocked
   if (unlocked.length === 0) {
-    strip.innerHTML = '<p class="badges-showcase-empty">Complete metas para desbloquear badges!</p>';
+    showcase.style.display = 'none';
     return;
   }
 
+  showcase.style.display = '';
   strip.innerHTML = '';
   unlocked.forEach((ach, i) => {
     const badge = document.createElement('div');
@@ -92,21 +94,29 @@ function renderAchievements(filter) {
     filtered = filtered.filter(a => a.category === filter);
   }
 
-  // Recent unlocked
-  const recent = allAchievements
-    .filter(a => a.unlocked)
-    .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
-    .slice(0, 3);
+  // Recent unlocked - only show on "all" filter
+  if (filter === 'all') {
+    const recent = allAchievements
+      .filter(a => a.unlocked)
+      .sort((a, b) => new Date(b.unlockedAt) - new Date(a.unlockedAt))
+      .slice(0, 3);
 
-  if (recent.length > 0 && filter === 'all') {
-    recentDiv.innerHTML = '<h4 class="ach-recent-title">Conquistas Recentes</h4>';
-    const recentGrid = document.createElement('div');
-    recentGrid.className = 'ach-grid';
-    recentGrid.style.marginBottom = '16px';
-    recent.forEach(ach => {
-      recentGrid.appendChild(createBadgeCard(ach, true));
-    });
-    recentDiv.appendChild(recentGrid);
+    if (recent.length > 0) {
+      recentDiv.style.display = '';
+      recentDiv.innerHTML = '<h4 class="ach-recent-title">⚡ Conquistas Recentes</h4>';
+      const recentGrid = document.createElement('div');
+      recentGrid.className = 'ach-grid';
+      recentGrid.style.marginBottom = '12px';
+      recent.forEach(ach => {
+        recentGrid.appendChild(createBadgeCard(ach, true));
+      });
+      recentDiv.appendChild(recentGrid);
+    } else {
+      // No unlocked achievements - hide the section completely
+      recentDiv.style.display = 'none';
+    }
+  } else {
+    recentDiv.style.display = 'none';
   }
 
   // All badges
@@ -117,7 +127,7 @@ function renderAchievements(filter) {
   });
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#555;padding:20px">Nenhuma conquista nesta categoria</p>';
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#555;padding:20px;font-size:13px">Nenhuma conquista nesta categoria</p>';
   }
 }
 
