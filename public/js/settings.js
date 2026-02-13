@@ -8,9 +8,8 @@ function toggleSettings() {
 // Avatar Preview Modal
 let selectedAvatarFile = null;
 
-document.getElementById('open-avatar-modal-btn')?.addEventListener('click', () => {
+function openAvatarModal() {
   document.getElementById('avatar-preview-modal').classList.remove('hidden');
-  // Reset modal state
   selectedAvatarFile = null;
   document.getElementById('avatar-preview-circle').innerHTML = '<span style="font-size:48px;color:var(--text-secondary)">📷</span>';
   document.getElementById('avatar-file-info').classList.add('hidden');
@@ -18,21 +17,20 @@ document.getElementById('open-avatar-modal-btn')?.addEventListener('click', () =
   document.getElementById('save-avatar-btn').disabled = true;
   const input = document.getElementById('avatar-upload');
   if (input) input.value = '';
-});
+}
 
 function closeAvatarModal() {
   document.getElementById('avatar-preview-modal').classList.add('hidden');
   selectedAvatarFile = null;
 }
 
-document.getElementById('avatar-upload')?.addEventListener('change', (e) => {
+function handleAvatarFile(e) {
   const file = e.target.files[0];
   if (!file) return;
 
   const errorEl = document.getElementById('avatar-file-error');
   const infoEl = document.getElementById('avatar-file-info');
 
-  // Validate type
   if (!file.type.startsWith('image/')) {
     errorEl.textContent = 'Apenas imagens são permitidas (JPEG, PNG, GIF, WebP)';
     errorEl.classList.remove('hidden');
@@ -41,7 +39,6 @@ document.getElementById('avatar-upload')?.addEventListener('change', (e) => {
     return;
   }
 
-  // Validate size
   if (file.size > 2 * 1024 * 1024) {
     errorEl.textContent = 'Imagem muito grande! Máximo 2MB.';
     errorEl.classList.remove('hidden');
@@ -53,7 +50,6 @@ document.getElementById('avatar-upload')?.addEventListener('change', (e) => {
   errorEl.classList.add('hidden');
   selectedAvatarFile = file;
 
-  // Show file info
   const sizeStr = file.size < 1024 ? file.size + ' B' :
     file.size < 1048576 ? (file.size / 1024).toFixed(1) + ' KB' :
     (file.size / 1048576).toFixed(1) + ' MB';
@@ -61,11 +57,10 @@ document.getElementById('avatar-upload')?.addEventListener('change', (e) => {
   document.getElementById('avatar-file-size').textContent = sizeStr;
   infoEl.classList.remove('hidden');
 
-  // Show preview
   const url = URL.createObjectURL(file);
   document.getElementById('avatar-preview-circle').innerHTML = `<img src="${url}" alt="Preview" />`;
   document.getElementById('save-avatar-btn').disabled = false;
-});
+}
 
 async function saveAvatarFromModal() {
   if (!selectedAvatarFile) return;
@@ -95,40 +90,6 @@ async function saveAvatarFromModal() {
   }
 }
 
-// Predefined avatars
-document.querySelectorAll('#predefined-avatars .avatar-option').forEach(el => {
-  el.addEventListener('click', async () => {
-    try {
-      const res = await fetch('/api/profile/avatar', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'predefined', value: el.dataset.value })
-      });
-      const data = await res.json();
-      if (data.success) {
-        document.querySelectorAll('#predefined-avatars .avatar-option').forEach(a => a.classList.remove('selected'));
-        el.classList.add('selected');
-        updateAvatarDisplay(data.avatar);
-      }
-    } catch (e) { alert('Erro ao alterar avatar'); }
-  });
-});
-
-// Unlockable avatars
-document.querySelectorAll('#unlockable-avatars .avatar-option:not(.locked)').forEach(el => {
-  el.addEventListener('click', async () => {
-    try {
-      const res = await fetch('/api/profile/avatar', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ type: 'unlockable', value: el.dataset.value })
-      });
-      const data = await res.json();
-      if (data.success) updateAvatarDisplay(data.avatar);
-    } catch (e) { alert('Erro ao alterar avatar'); }
-  });
-});
-
 function updateAvatarDisplay(avatar) {
   const btn = document.getElementById('avatar-btn');
   const settingsAvatar = document.getElementById('settings-avatar');
@@ -143,25 +104,21 @@ function updateAvatarDisplay(avatar) {
 }
 
 // Theme selector - 15 themes
-document.querySelectorAll('.theme-circle').forEach(circle => {
-  circle.addEventListener('click', async () => {
-    const theme = circle.dataset.theme;
-    try {
-      const res = await fetch('/api/profile/theme', {
-        method: 'PUT',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ theme })
-      });
-      const data = await res.json();
-      if (data.success) {
-        document.querySelectorAll('.theme-circle').forEach(c => c.classList.remove('selected'));
-        circle.classList.add('selected');
-        applyTheme(theme);
-        window.USER.theme = theme;
-      }
-    } catch (e) { alert('Erro ao alterar tema'); }
-  });
-});
+function handleThemeClick(circle) {
+  const theme = circle.dataset.theme;
+  fetch('/api/profile/theme', {
+    method: 'PUT',
+    headers: { 'Content-Type': 'application/json' },
+    body: JSON.stringify({ theme })
+  }).then(r => r.json()).then(data => {
+    if (data.success) {
+      document.querySelectorAll('.theme-circle').forEach(c => c.classList.remove('selected'));
+      circle.classList.add('selected');
+      applyTheme(theme);
+      window.USER.theme = theme;
+    }
+  }).catch(() => {});
+}
 
 // Password modal
 function openPasswordModal() {
@@ -171,33 +128,175 @@ function closePasswordModal() {
   document.getElementById('password-modal').classList.add('hidden');
 }
 
-document.getElementById('password-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const currentPassword = document.getElementById('current-password').value;
-  const newPassword = document.getElementById('new-password').value;
-  const confirmPassword = document.getElementById('confirm-password').value;
+// Import data
+let pendingImportData = null;
 
-  if (newPassword !== confirmPassword) { alert('Senhas não conferem'); return; }
-  if (newPassword.length < 6) { alert('Nova senha deve ter pelo menos 6 caracteres'); return; }
+function cancelImport() {
+  pendingImportData = null;
+  document.getElementById('import-confirm-modal').classList.add('hidden');
+}
 
+async function confirmImport() {
+  if (!pendingImportData) return;
+  document.getElementById('import-confirm-modal').classList.add('hidden');
   try {
-    const res = await fetch('/api/profile/password', {
-      method: 'PUT',
+    const res = await fetch('/api/profile/import', {
+      method: 'POST',
       headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+      body: JSON.stringify(pendingImportData)
     });
     const data = await res.json();
     if (data.success) {
-      alert('Senha alterada com sucesso!');
-      closePasswordModal();
-      e.target.reset();
+      alert('Dados importados com sucesso!');
+      location.reload();
     } else {
-      alert(data.error || 'Erro ao alterar senha');
+      alert(data.error || 'Erro ao importar dados');
     }
-  } catch (e) { alert('Erro ao alterar senha'); }
+  } catch (e) {
+    alert('Erro ao importar dados');
+  }
+  pendingImportData = null;
+}
+
+// Delete account
+function openDeleteAccount() {
+  document.getElementById('delete-account-modal').classList.remove('hidden');
+}
+function closeDeleteAccount() {
+  document.getElementById('delete-account-modal').classList.add('hidden');
+}
+
+// Init all settings event listeners after DOM is ready
+document.addEventListener('DOMContentLoaded', () => {
+  // Avatar upload button
+  const avatarModalBtn = document.getElementById('open-avatar-modal-btn');
+  if (avatarModalBtn) {
+    avatarModalBtn.addEventListener('click', (e) => {
+      e.preventDefault();
+      e.stopPropagation();
+      openAvatarModal();
+    });
+  }
+
+  // Avatar file input
+  const avatarUpload = document.getElementById('avatar-upload');
+  if (avatarUpload) {
+    avatarUpload.addEventListener('change', handleAvatarFile);
+  }
+
+  // Predefined avatars
+  document.querySelectorAll('#predefined-avatars .avatar-option').forEach(el => {
+    el.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/profile/avatar', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'predefined', value: el.dataset.value })
+        });
+        const data = await res.json();
+        if (data.success) {
+          document.querySelectorAll('#predefined-avatars .avatar-option').forEach(a => a.classList.remove('selected'));
+          el.classList.add('selected');
+          updateAvatarDisplay(data.avatar);
+        }
+      } catch (e) { alert('Erro ao alterar avatar'); }
+    });
+  });
+
+  // Unlockable avatars
+  document.querySelectorAll('#unlockable-avatars .avatar-option:not(.locked)').forEach(el => {
+    el.addEventListener('click', async () => {
+      try {
+        const res = await fetch('/api/profile/avatar', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ type: 'unlockable', value: el.dataset.value })
+        });
+        const data = await res.json();
+        if (data.success) updateAvatarDisplay(data.avatar);
+      } catch (e) { alert('Erro ao alterar avatar'); }
+    });
+  });
+
+  // Theme circles
+  document.querySelectorAll('.theme-circle').forEach(circle => {
+    circle.addEventListener('click', () => handleThemeClick(circle));
+  });
+
+  // Password form
+  const passwordForm = document.getElementById('password-form');
+  if (passwordForm) {
+    passwordForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const currentPassword = document.getElementById('current-password').value;
+      const newPassword = document.getElementById('new-password').value;
+      const confirmPassword = document.getElementById('confirm-password').value;
+
+      if (newPassword !== confirmPassword) { alert('Senhas não conferem'); return; }
+      if (newPassword.length < 6) { alert('Nova senha deve ter pelo menos 6 caracteres'); return; }
+
+      try {
+        const res = await fetch('/api/profile/password', {
+          method: 'PUT',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ currentPassword, newPassword, confirmPassword })
+        });
+        const data = await res.json();
+        if (data.success) {
+          alert('Senha alterada com sucesso!');
+          closePasswordModal();
+          e.target.reset();
+        } else {
+          alert(data.error || 'Erro ao alterar senha');
+        }
+      } catch (err) { alert('Erro ao alterar senha'); }
+    });
+  }
+
+  // Import data
+  const importInput = document.getElementById('import-data');
+  if (importInput) {
+    importInput.addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (ev) => {
+        try {
+          pendingImportData = JSON.parse(ev.target.result);
+          document.getElementById('import-confirm-modal').classList.remove('hidden');
+        } catch (err) {
+          alert('Arquivo JSON inválido');
+        }
+      };
+      reader.readAsText(file);
+      e.target.value = '';
+    });
+  }
+
+  // Delete account form
+  const deleteForm = document.getElementById('delete-account-form');
+  if (deleteForm) {
+    deleteForm.addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const username = document.getElementById('confirm-username').value;
+      try {
+        const res = await fetch('/api/profile/account', {
+          method: 'DELETE',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ confirmUsername: username })
+        });
+        const data = await res.json();
+        if (data.success) {
+          window.location.href = '/login';
+        } else {
+          alert(data.error || 'Erro ao apagar conta');
+        }
+      } catch (err) { alert('Erro ao apagar conta'); }
+    });
+  }
 });
 
-// Manage goals
+// Manage goals (called from settings panel)
 async function openManageGoals() {
   document.getElementById('manage-goals-modal').classList.remove('hidden');
   const list = document.getElementById('manage-goals-list');
@@ -240,75 +339,3 @@ async function openManageGoals() {
 function closeManageGoals() {
   document.getElementById('manage-goals-modal').classList.add('hidden');
 }
-
-// Import data
-let pendingImportData = null;
-
-document.getElementById('import-data')?.addEventListener('change', (e) => {
-  const file = e.target.files[0];
-  if (!file) return;
-  const reader = new FileReader();
-  reader.onload = (ev) => {
-    try {
-      pendingImportData = JSON.parse(ev.target.result);
-      document.getElementById('import-confirm-modal').classList.remove('hidden');
-    } catch (err) {
-      alert('Arquivo JSON inválido');
-    }
-  };
-  reader.readAsText(file);
-  e.target.value = '';
-});
-
-function cancelImport() {
-  pendingImportData = null;
-  document.getElementById('import-confirm-modal').classList.add('hidden');
-}
-
-async function confirmImport() {
-  if (!pendingImportData) return;
-  document.getElementById('import-confirm-modal').classList.add('hidden');
-  try {
-    const res = await fetch('/api/profile/import', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify(pendingImportData)
-    });
-    const data = await res.json();
-    if (data.success) {
-      alert('Dados importados com sucesso!');
-      location.reload();
-    } else {
-      alert(data.error || 'Erro ao importar dados');
-    }
-  } catch (e) {
-    alert('Erro ao importar dados');
-  }
-  pendingImportData = null;
-}
-
-// Delete account
-function openDeleteAccount() {
-  document.getElementById('delete-account-modal').classList.remove('hidden');
-}
-function closeDeleteAccount() {
-  document.getElementById('delete-account-modal').classList.add('hidden');
-}
-
-document.getElementById('delete-account-form')?.addEventListener('submit', async (e) => {
-  e.preventDefault();
-  const username = document.getElementById('confirm-username').value;
-  try {
-    const res = await fetch('/api/profile/account', {
-      method: 'DELETE',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ confirmUsername: username })
-    });
-    const data = await res.json();
-    if (data.success) {
-      window.location.href = '/login';
-    } else {
-      alert(data.error || 'Erro ao apagar conta');
-    }
-  } catch (e) { alert('Erro ao apagar conta'); }
-});

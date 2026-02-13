@@ -1,6 +1,7 @@
 const DAYS_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const FREQ_LABELS = { daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal', custom: 'Custom' };
 let routineChart = null;
+let checkinInProgress = {};
 
 function initDaySelector() {
   const container = document.getElementById('day-selector');
@@ -82,7 +83,12 @@ function renderGoals(data) {
   });
 }
 
+// Debounced check-in to prevent double clicks
 async function toggleGoal(goalId, completed, checkboxEl) {
+  // Prevent double-click
+  if (checkinInProgress[goalId]) return;
+  checkinInProgress[goalId] = true;
+
   try {
     const res = await fetch('/api/goals/checkin', {
       method: 'POST',
@@ -100,7 +106,6 @@ async function toggleGoal(goalId, completed, checkboxEl) {
         card.classList.add('completed');
         miniConfetti(checkboxEl);
 
-        // Flash effect on card
         card.classList.add('goal-flash');
         setTimeout(() => card.classList.remove('goal-flash'), 400);
 
@@ -116,7 +121,6 @@ async function toggleGoal(goalId, completed, checkboxEl) {
 
       updateProgress(data.completed_count, data.total_count);
 
-      // Handle level up
       if (data.level_up) {
         const titles = {1:'Iniciante',2:'Aprendiz',3:'Praticante',5:'Disciplinado',7:'Forjador de Hábitos',10:'Máquina',15:'Imparável',20:'Lendário',25:'Transcendente',30:'Mito',50:'Deus da Disciplina',100:'Ascendido'};
         let title = 'Iniciante';
@@ -124,22 +128,25 @@ async function toggleGoal(goalId, completed, checkboxEl) {
         showLevelUp(data.new_level, title);
       }
 
-      // Handle new achievements
       if (data.new_achievements && data.new_achievements.length > 0) {
         data.new_achievements.forEach(ach => {
           queueAchievement(ach.badge, ach.xpAwarded);
         });
       }
 
-      // Update user data
       window.USER.xp = data.new_xp;
       window.USER.level = data.new_level;
 
-      // Refresh metas after checkin
-      if (typeof loadMetas === 'function') loadMetas();
+      // Refresh metas after checkin (debounced)
+      setTimeout(() => {
+        if (typeof loadMetas === 'function') loadMetas();
+      }, 300);
     }
   } catch (e) {
     console.error('Checkin error:', e);
+  } finally {
+    // Release lock after short delay to prevent rapid re-clicks
+    setTimeout(() => { delete checkinInProgress[goalId]; }, 500);
   }
 }
 
@@ -351,7 +358,7 @@ async function loadRoutineChart(period) {
       options: {
         responsive: true,
         maintainAspectRatio: false,
-        animation: { duration: 1000, easing: 'easeOutQuart' },
+        animation: { duration: 800, easing: 'easeOutQuart' },
         plugins: { legend: { display: false }, tooltip: {
           backgroundColor: 'rgba(20,20,20,0.95)',
           titleColor: '#fff', bodyColor: '#B0B0B0',
@@ -378,5 +385,5 @@ document.querySelectorAll('#routine-period-selector .period-btn').forEach(btn =>
   });
 });
 
-// Load initial chart
-setTimeout(() => loadRoutineChart('daily'), 500);
+// Load initial chart with slight delay to prioritize content
+setTimeout(() => loadRoutineChart('daily'), 400);

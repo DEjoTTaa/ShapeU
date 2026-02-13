@@ -26,7 +26,16 @@ const state = {
   achievementsLoaded: false
 };
 
-// Tab switching
+// Debounce utility
+function debounce(fn, delay) {
+  let timer;
+  return function(...args) {
+    clearTimeout(timer);
+    timer = setTimeout(() => fn.apply(this, args), delay);
+  };
+}
+
+// Tab switching with lazy loading
 document.querySelectorAll('.tab').forEach(tab => {
   tab.addEventListener('click', () => {
     const tabName = tab.dataset.tab;
@@ -41,6 +50,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 
     state.currentTab = tabName;
 
+    // Lazy load tabs only when first visited
     if (tabName === 'stats' && !state.statsLoaded) {
       loadStats('daily');
       state.statsLoaded = true;
@@ -57,7 +67,6 @@ function applyTheme(theme) {
   const el = document.documentElement;
   el.setAttribute('data-theme', theme);
 
-  // Also set CSS variables directly for immediate effect
   const t = THEMES[theme];
   if (t) {
     el.style.setProperty('--primary', t.primary);
@@ -67,7 +76,7 @@ function applyTheme(theme) {
   }
 }
 
-// Handle legacy theme names from old data
+// Handle legacy theme names
 function migrateThemeName(theme) {
   const legacy = { 'gold': 'dourado', 'blue': 'azul-royal', 'green': 'verde-esmeralda', 'pink': 'rosa-neon' };
   return legacy[theme] || theme || 'dourado';
@@ -210,5 +219,8 @@ document.addEventListener('DOMContentLoaded', () => {
   loadDailyGoals(state.currentDate);
   loadMotivation();
   initDaySelector();
-  if (typeof loadMetas === 'function') loadMetas();
+  // Delay metas loading slightly to not block initial render
+  setTimeout(() => {
+    if (typeof loadMetas === 'function') loadMetas();
+  }, 200);
 });

@@ -1,15 +1,50 @@
 // Metas (Long-term Goals) Feature
 let metasData = [];
 let deleteMetaId = null;
+let metasLoading = false;
 
 async function loadMetas() {
+  if (metasLoading) return;
+  metasLoading = true;
+
+  const list = document.getElementById('metas-list');
+  if (!list) { metasLoading = false; return; }
+
   try {
-    const res = await fetch('/api/metas');
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+
+    const res = await fetch('/api/metas', { signal: controller.signal });
+    clearTimeout(timeout);
+
+    if (!res.ok) throw new Error('HTTP ' + res.status);
+
     metasData = await res.json();
+
+    if (!Array.isArray(metasData)) {
+      metasData = [];
+      throw new Error('Invalid response');
+    }
+
     renderMetas(metasData);
   } catch (e) {
     console.error('Error loading metas:', e);
+    metasData = [];
+
+    if (e.name === 'AbortError') {
+      list.innerHTML = '<div class="metas-error"><p>Tempo esgotado ao carregar metas.</p><button class="btn btn-ghost" onclick="retryLoadMetas()">Tentar novamente</button></div>';
+    } else {
+      list.innerHTML = '<div class="metas-error"><p>Erro ao carregar metas.</p><button class="btn btn-ghost" onclick="retryLoadMetas()">Tentar novamente</button></div>';
+    }
+  } finally {
+    metasLoading = false;
   }
+}
+
+function retryLoadMetas() {
+  const list = document.getElementById('metas-list');
+  if (list) list.innerHTML = '<p style="text-align:center;color:var(--text-secondary);padding:20px;font-size:14px">Carregando metas...</p>';
+  loadMetas();
 }
 
 function renderMetas(metas) {
@@ -51,7 +86,7 @@ function renderMetas(metas) {
         </div>
         <div class="meta-progress-text">
           <span>${progress}% (${meta.currentValue}/${meta.targetValue} ${meta.unit})</span>
-          ${!meta.linkedGoalId ? `<button onclick="incrementMeta('${meta._id}')" style="background:none;border:none;cursor:pointer;font-size:16px;padding:2px 6px;border-radius:4px;transition:all .2s" title="Incrementar +1">➕</button>` : ''}
+          ${!meta.linkedGoalId ? `<button class="meta-increment-btn" onclick="incrementMeta('${meta._id}')" title="Incrementar +1">➕</button>` : ''}
         </div>
       </div>
       <div class="meta-card-footer">
@@ -116,7 +151,6 @@ function formatDeadline(startDate, endDate, daysLeft) {
 }
 
 function toggleMetaMenu(id) {
-  // Close all other menus
   document.querySelectorAll('.meta-options-menu').forEach(m => {
     if (m.id !== `meta-menu-${id}`) m.classList.add('hidden');
   });
@@ -124,14 +158,12 @@ function toggleMetaMenu(id) {
   menu.classList.toggle('hidden');
 }
 
-// Close meta menus on click outside
 document.addEventListener('click', (e) => {
   if (!e.target.closest('.meta-card-options') && !e.target.closest('.meta-options-menu')) {
     document.querySelectorAll('.meta-options-menu').forEach(m => m.classList.add('hidden'));
   }
 });
 
-// Manual increment for non-linked metas
 async function incrementMeta(id) {
   const meta = metasData.find(m => m._id === id);
   if (!meta || meta.isCompleted) return;
@@ -147,14 +179,12 @@ async function incrementMeta(id) {
     const data = await res.json();
     if (data._id) {
       loadMetas();
-      // XP bonus handled server-side if completed
     }
   } catch (e) {
     console.error('Increment meta error:', e);
   }
 }
 
-// Create Meta Modal
 async function openCreateMetaModal() {
   document.getElementById('meta-modal').classList.remove('hidden');
   document.getElementById('meta-modal-title').textContent = 'Criar Nova Meta';
@@ -164,26 +194,26 @@ async function openCreateMetaModal() {
   document.getElementById('meta-target').value = '';
   document.getElementById('meta-unit').value = 'vezes';
 
-  // Set default dates
   const today = new Date().toISOString().split('T')[0];
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 1);
   document.getElementById('meta-start').value = today;
   document.getElementById('meta-end').value = nextMonth.toISOString().split('T')[0];
 
-  // Populate linked goals dropdown
   const select = document.getElementById('meta-linked-goal');
   select.innerHTML = '<option value="">Nenhuma (progresso manual)</option>';
 
   try {
     const res = await fetch('/api/goals');
     const goals = await res.json();
-    goals.forEach(g => {
-      const opt = document.createElement('option');
-      opt.value = g._id;
-      opt.textContent = `${g.icon} ${g.name}`;
-      select.appendChild(opt);
-    });
+    if (Array.isArray(goals)) {
+      goals.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g._id;
+        opt.textContent = `${g.icon} ${g.name}`;
+        select.appendChild(opt);
+      });
+    }
   } catch (e) {}
 }
 
@@ -191,14 +221,12 @@ function closeMetaModal() {
   document.getElementById('meta-modal').classList.add('hidden');
 }
 
-// Meta emoji picker
 document.querySelectorAll('.meta-emoji').forEach(el => {
   el.addEventListener('click', () => {
     document.getElementById('meta-icon').value = el.dataset.emoji;
   });
 });
 
-// Meta form submit
 document.getElementById('meta-form')?.addEventListener('submit', async (e) => {
   e.preventDefault();
 
@@ -239,12 +267,10 @@ document.getElementById('meta-form')?.addEventListener('submit', async (e) => {
   }
 });
 
-// Edit meta
 async function editMeta(id) {
   const meta = metasData.find(m => m._id === id);
   if (!meta) return;
 
-  // Close menu
   document.querySelectorAll('.meta-options-menu').forEach(m => m.classList.add('hidden'));
 
   document.getElementById('meta-modal').classList.remove('hidden');
@@ -257,24 +283,24 @@ async function editMeta(id) {
   document.getElementById('meta-start').value = meta.startDate;
   document.getElementById('meta-end').value = meta.endDate;
 
-  // Populate linked goals dropdown
   const select = document.getElementById('meta-linked-goal');
   select.innerHTML = '<option value="">Nenhuma (progresso manual)</option>';
 
   try {
     const res = await fetch('/api/goals');
     const goals = await res.json();
-    goals.forEach(g => {
-      const opt = document.createElement('option');
-      opt.value = g._id;
-      opt.textContent = `${g.icon} ${g.name}`;
-      if (meta.linkedGoalId && meta.linkedGoalId === g._id) opt.selected = true;
-      select.appendChild(opt);
-    });
+    if (Array.isArray(goals)) {
+      goals.forEach(g => {
+        const opt = document.createElement('option');
+        opt.value = g._id;
+        opt.textContent = `${g.icon} ${g.name}`;
+        if (meta.linkedGoalId && meta.linkedGoalId === g._id) opt.selected = true;
+        select.appendChild(opt);
+      });
+    }
   } catch (e) {}
 }
 
-// Delete meta
 function requestDeleteMeta(id) {
   deleteMetaId = id;
   document.querySelectorAll('.meta-options-menu').forEach(m => m.classList.add('hidden'));
