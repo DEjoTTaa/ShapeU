@@ -7,9 +7,9 @@ const RARITY_LABELS = {
   secret_rare: 'Secreto', secret_epic: 'Secreto Épico', secret_legendary: 'Secreto Lendário'
 };
 
-const CATEGORY_MAP = {
-  streaks: 'streaks', totais: 'totais', perfeicao: 'perfeicao',
-  horarios: 'horarios', marcos: 'marcos', secretas: 'secretas'
+const RARITY_ORDER = {
+  legendary: 0, secret_legendary: 1, epic: 2, secret_epic: 3,
+  rare: 4, secret_rare: 5, uncommon: 6, common: 7
 };
 
 async function loadAchievements() {
@@ -27,10 +27,54 @@ async function loadAchievements() {
     document.getElementById('ach-xp-fill').style.width = xpPct + '%';
     document.getElementById('ach-xp-text').textContent = `${data.xpInLevel} / ${data.xpForNext} XP`;
 
+    // Render badges showcase
+    renderBadgesShowcase();
+
     renderAchievements(currentFilter);
   } catch (e) {
     console.error('Load achievements error:', e);
   }
+}
+
+function renderBadgesShowcase() {
+  const strip = document.getElementById('badges-showcase-strip');
+  const countEl = document.getElementById('badges-showcase-count');
+  if (!strip) return;
+
+  const unlocked = allAchievements
+    .filter(a => a.unlocked)
+    .sort((a, b) => {
+      // Sort by rarity (rarest first), then by date (newest first)
+      const ra = RARITY_ORDER[a.rarity] ?? 99;
+      const rb = RARITY_ORDER[b.rarity] ?? 99;
+      if (ra !== rb) return ra - rb;
+      return new Date(b.unlockedAt) - new Date(a.unlockedAt);
+    });
+
+  if (countEl) {
+    countEl.textContent = unlocked.length + ' desbloqueada' + (unlocked.length !== 1 ? 's' : '');
+  }
+
+  if (unlocked.length === 0) {
+    strip.innerHTML = '<p class="badges-showcase-empty">Complete metas para desbloquear badges!</p>';
+    return;
+  }
+
+  strip.innerHTML = '';
+  unlocked.forEach((ach, i) => {
+    const badge = document.createElement('div');
+    badge.className = `badge-showcase-item rarity-${ach.rarity} animate-in`;
+    badge.style.animationDelay = `${i * 0.04}s`;
+    badge.title = `${ach.name} — ${ach.description}`;
+
+    badge.innerHTML = `
+      <span class="badge-showcase-icon">${ach.icon}</span>
+      <span class="badge-showcase-name">${ach.name}</span>
+      <span class="badge-showcase-rarity rarity-${ach.rarity}">${RARITY_LABELS[ach.rarity] || ach.rarity}</span>
+    `;
+
+    strip.appendChild(badge);
+  });
 }
 
 function renderAchievements(filter) {
@@ -73,7 +117,7 @@ function renderAchievements(filter) {
   });
 
   if (filtered.length === 0) {
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#666;padding:20px">Nenhuma conquista nesta categoria</p>';
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#555;padding:20px">Nenhuma conquista nesta categoria</p>';
   }
 }
 
