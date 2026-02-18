@@ -53,11 +53,9 @@ document.querySelectorAll('.tab').forEach(tab => {
     // Lazy load tabs only when first visited
     if (tabName === 'stats' && !state.statsLoaded) {
       loadStats('daily');
-      state.statsLoaded = true;
     }
     if (tabName === 'achievements' && !state.achievementsLoaded) {
       loadAchievements();
-      state.achievementsLoaded = true;
     }
   });
 });
@@ -66,6 +64,7 @@ document.querySelectorAll('.tab').forEach(tab => {
 function applyTheme(theme) {
   const el = document.documentElement;
   el.setAttribute('data-theme', theme);
+  if (document.body) document.body.setAttribute('data-theme', theme);
 
   const t = THEMES[theme];
   if (t) {

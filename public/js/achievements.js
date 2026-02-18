@@ -31,6 +31,7 @@ async function loadAchievements() {
     renderBadgesShowcase();
 
     renderAchievements(currentFilter);
+    state.achievementsLoaded = true;
   } catch (e) {
     console.error('Load achievements error:', e);
   }

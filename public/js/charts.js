@@ -12,15 +12,20 @@ function getThemeColors() {
 
 async function loadStats(period) {
   currentStatsPeriod = period;
-  await Promise.all([
-    loadSummary(period),
-    loadStrengths(period),
-    loadEvolutionChart(period),
-    loadComparisonChart(period),
-    loadDistributionChart(period),
-    loadHeatmap(period),
-    loadAnalysis(period)
-  ]);
+  try {
+    await Promise.all([
+      loadSummary(period),
+      loadStrengths(period),
+      loadEvolutionChart(period),
+      loadComparisonChart(period),
+      loadDistributionChart(period),
+      loadHeatmap(period),
+      loadAnalysis(period)
+    ]);
+    state.statsLoaded = true;
+  } catch (e) {
+    console.error('Stats load error:', e);
+  }
 }
 
 async function loadSummary(period) {
@@ -166,7 +171,7 @@ async function loadDistributionChart(period) {
       },
       options: {
         responsive: true, maintainAspectRatio: false,
-        animation: { duration: 1000, easing: 'easeOutQuart' },
+        animation: { duration: 600, easing: 'easeOutQuart' },
         plugins: {
           legend: { position: 'bottom', labels: { color: '#B0B0B0', font: { size: 11, family: 'Inter' }, padding: 12 }},
           tooltip: {
@@ -256,7 +261,7 @@ function chartOptions() {
   const { primaryRgb } = getThemeColors();
   return {
     responsive: true, maintainAspectRatio: false,
-    animation: { duration: 1000, easing: 'easeOutQuart' },
+    animation: { duration: 600, easing: 'easeOutQuart' },
     plugins: { legend: { display: false }, tooltip: {
       backgroundColor: 'rgba(20,20,20,0.95)',
       titleColor: '#fff', bodyColor: '#B0B0B0',

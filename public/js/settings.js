@@ -75,6 +75,7 @@ async function saveAvatarFromModal() {
     const res = await fetch('/api/profile/avatar', { method: 'PUT', body: formData });
     const data = await res.json();
     if (data.success) {
+      window.USER.avatar = data.avatar;
       updateAvatarDisplay(data.avatar);
       closeAvatarModal();
     } else {
@@ -195,6 +196,7 @@ document.addEventListener('DOMContentLoaded', () => {
         });
         const data = await res.json();
         if (data.success) {
+          window.USER.avatar = data.avatar;
           document.querySelectorAll('#predefined-avatars .avatar-option').forEach(a => a.classList.remove('selected'));
           el.classList.add('selected');
           updateAvatarDisplay(data.avatar);
@@ -213,7 +215,10 @@ document.addEventListener('DOMContentLoaded', () => {
           body: JSON.stringify({ type: 'unlockable', value: el.dataset.value })
         });
         const data = await res.json();
-        if (data.success) updateAvatarDisplay(data.avatar);
+        if (data.success) {
+          window.USER.avatar = data.avatar;
+          updateAvatarDisplay(data.avatar);
+        }
       } catch (e) { alert('Erro ao alterar avatar'); }
     });
   });
