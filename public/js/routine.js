@@ -2,88 +2,72 @@ const DAYS_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const FREQ_LABELS = { daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal', custom: 'Custom' };
 let routineChart = null;
 let checkinInProgress = {};
-let currentWeekOffset = 0;
+let weekOffset = 0;
 
-// Called from app.js DOMContentLoaded
+function getWeekDays(offset) {
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow === 0 ? 7 : dow) - 1) + (offset * 7));
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
+
 function initDaySelector() {
-  renderWeekDays();
+  renderWeek(weekOffset);
 }
 
-function changeWeek(direction) {
-  var newOffset = currentWeekOffset + direction;
-  if (newOffset > 0) return;
-  currentWeekOffset = newOffset;
-  renderWeekDays();
-}
-
-function renderWeekDays() {
-  var container = document.getElementById('week-days');
+function renderWeek(offset) {
+  const container = document.getElementById('day-selector');
   if (!container) return;
   container.innerHTML = '';
 
-  var today = new Date();
+  const today = new Date();
   today.setHours(12, 0, 0, 0);
-  var todayStr = today.toISOString().split('T')[0];
+  const todayStr = today.toISOString().split('T')[0];
+  const days = getWeekDays(offset);
 
-  // Find monday of the target week
-  var baseDate = new Date(today);
-  baseDate.setDate(today.getDate() + (currentWeekOffset * 7));
-  var dow = baseDate.getDay();
-  var monday = new Date(baseDate);
-  monday.setDate(baseDate.getDate() - ((dow + 6) % 7));
+  // Disable forward button if already on current week
+  const nextBtn = document.getElementById('week-next-btn');
+  if (nextBtn) {
+    nextBtn.disabled = offset >= 0;
+    nextBtn.classList.toggle('disabled', offset >= 0);
+  }
 
-  // Generate 7 day buttons (Mon-Sun)
-  for (var i = 0; i < 7; i++) {
-    var d = new Date(monday);
-    d.setDate(monday.getDate() + i);
-    var dateStr = d.toISOString().split('T')[0];
-    var isToday = (dateStr === todayStr);
-    var isSelected = (dateStr === state.currentDate);
-
-    var btn = document.createElement('button');
+  days.forEach(d => {
+    const dateStr = d.toISOString().split('T')[0];
+    const dow = d.getDay();
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === state.currentDate;
+    const btn = document.createElement('button');
     btn.className = 'day-btn' + (isSelected ? ' active' : '') + (isToday && !isSelected ? ' today' : '');
-    btn.setAttribute('data-date', dateStr);
-    btn.innerHTML = '<span>' + DAYS_PT[d.getDay()] + '</span><small>' + d.getDate() + '</small>';
-    btn.onclick = (function(ds) {
-      return function() { selectDay(ds); };
-    })(dateStr);
+    btn.dataset.date = dateStr;
+    btn.innerHTML = `<span>${DAYS_PT[dow]}</span><small>${d.getDate()}</small>`;
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.day-btn').forEach(b => {
+        b.classList.remove('active');
+        // Restore today highlight if it lost it
+        if (b.dataset.date === todayStr) b.classList.add('today');
+      });
+      btn.classList.add('active');
+      btn.classList.remove('today');
+      state.currentDate = dateStr;
+      loadDailyGoals(dateStr);
+    });
     container.appendChild(btn);
-  }
-
-  // Disable/enable next arrow
-  var nextArrow = document.getElementById('week-arrow-next');
-  if (nextArrow) {
-    if (currentWeekOffset >= 0) {
-      nextArrow.style.opacity = '0.25';
-      nextArrow.style.pointerEvents = 'none';
-    } else {
-      nextArrow.style.opacity = '1';
-      nextArrow.style.pointerEvents = 'auto';
-    }
-  }
+  });
 }
 
-function selectDay(dateStr) {
-  var today = new Date();
-  today.setHours(12, 0, 0, 0);
-  var todayStr = today.toISOString().split('T')[0];
-
-  var allBtns = document.querySelectorAll('#week-days .day-btn');
-  for (var i = 0; i < allBtns.length; i++) {
-    allBtns[i].classList.remove('active');
-    if (allBtns[i].getAttribute('data-date') === todayStr) {
-      allBtns[i].classList.add('today');
-    }
-  }
-
-  var selected = document.querySelector('#week-days .day-btn[data-date="' + dateStr + '"]');
-  if (selected) {
-    selected.classList.add('active');
-    selected.classList.remove('today');
-  }
-
-  state.currentDate = dateStr;
-  loadDailyGoals(dateStr);
+function navigateWeek(direction) {
+  if (direction > 0 && weekOffset >= 0) return;
+  weekOffset += direction;
+  renderWeek(weekOffset);
 }
 
 
