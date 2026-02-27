@@ -20,6 +20,8 @@ function getWeekDays(offset) {
 }
 
 function initDaySelector() {
+  document.getElementById('week-prev')?.addEventListener('click', () => navigateWeek(-1));
+  document.getElementById('week-next')?.addEventListener('click', () => navigateWeek(1));
   renderWeek(weekOffset);
 }
 
@@ -57,8 +59,6 @@ function navigateWeek(direction) {
   renderWeek(weekOffset);
 }
 
-document.getElementById('week-prev')?.addEventListener('click', () => navigateWeek(-1));
-document.getElementById('week-next')?.addEventListener('click', () => navigateWeek(1));
 
 async function loadDailyGoals(date) {
   try {
