@@ -20,19 +20,25 @@ function getWeekDays(offset) {
 }
 
 function initDaySelector() {
-  document.getElementById('week-prev')?.addEventListener('click', () => navigateWeek(-1));
-  document.getElementById('week-next')?.addEventListener('click', () => navigateWeek(1));
   renderWeek(weekOffset);
 }
 
 function renderWeek(offset) {
   const container = document.getElementById('day-selector');
+  if (!container) return;
   container.innerHTML = '';
 
   const today = new Date();
   today.setHours(12, 0, 0, 0);
   const todayStr = today.toISOString().split('T')[0];
   const days = getWeekDays(offset);
+
+  // Disable forward button if already on current week
+  const nextBtn = document.getElementById('week-next-btn');
+  if (nextBtn) {
+    nextBtn.disabled = offset >= 0;
+    nextBtn.classList.toggle('disabled', offset >= 0);
+  }
 
   days.forEach(d => {
     const dateStr = d.toISOString().split('T')[0];
@@ -44,9 +50,13 @@ function renderWeek(offset) {
     btn.dataset.date = dateStr;
     btn.innerHTML = `<span>${DAYS_PT[dow]}</span><small>${d.getDate()}</small>`;
     btn.addEventListener('click', () => {
-      document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
+      document.querySelectorAll('.day-btn').forEach(b => {
+        b.classList.remove('active');
+        // Restore today highlight if it lost it
+        if (b.dataset.date === todayStr) b.classList.add('today');
+      });
       btn.classList.add('active');
-      if (btn.classList.contains('today')) btn.classList.remove('today');
+      btn.classList.remove('today');
       state.currentDate = dateStr;
       loadDailyGoals(dateStr);
     });
@@ -55,6 +65,7 @@ function renderWeek(offset) {
 }
 
 function navigateWeek(direction) {
+  if (direction > 0 && weekOffset >= 0) return;
   weekOffset += direction;
   renderWeek(weekOffset);
 }

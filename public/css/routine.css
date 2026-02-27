@@ -41,26 +41,31 @@
 
 /* Day Selector */
 .day-selector-container{
-  display:flex;align-items:center;gap:4px;
-  -webkit-overflow-scrolling:touch;
+  display:flex;align-items:center;gap:6px;
 }
 .week-nav-btn{
-  width:32px;height:32px;border-radius:50%;border:1px solid rgba(255,255,255,.06);
-  background:rgba(255,255,255,.03);color:#555;
+  width:40px;height:40px;border-radius:50%;
+  border:1px solid rgba(255,255,255,.06);
+  background:rgba(255,255,255,.03);
+  color:var(--primary);
   cursor:pointer;display:flex;align-items:center;justify-content:center;
   transition:all .25s ease;flex-shrink:0;padding:0;
 }
 .week-nav-btn svg{transition:transform .2s ease}
 .week-nav-btn:hover{
-  background:rgba(var(--primary-rgb),.12);color:var(--primary);
-  border-color:rgba(var(--primary-rgb),.35);
-  box-shadow:0 0 12px rgba(var(--primary-rgb),.1);
+  background:rgba(var(--primary-rgb),.12);
+  border-color:rgba(var(--primary-rgb),.4);
+  box-shadow:0 0 16px rgba(var(--primary-rgb),.15);
 }
-.week-nav-btn:active{transform:scale(.88)}
-.week-nav-btn:hover svg{transform:scale(1.1)}
+.week-nav-btn:hover svg{transform:scale(1.15)}
+.week-nav-btn:active{transform:scale(.9)}
+.week-nav-btn.disabled{
+  opacity:.25;cursor:default;pointer-events:none;
+}
 .day-selector{display:flex;gap:6px;justify-content:center;padding:2px 0;flex:1}
 .day-btn{
-  width:44px;height:56px;border-radius:22px;border:none;
+  width:44px;height:56px;border-radius:22px;
+  border:1px solid transparent;
   background:rgba(255,255,255,.03);
   color:#666;
   font-size:12px;font-weight:500;cursor:pointer;
@@ -69,12 +74,14 @@
 }
 .day-btn.active{
   background:var(--primary);color:#000;font-weight:700;
+  border-color:var(--primary);
   box-shadow:0 0 24px rgba(var(--primary-rgb),.25);
 }
 .day-btn.today{
-  border:1.5px solid var(--primary);color:var(--primary);font-weight:600;
+  border-color:var(--primary);color:var(--primary);font-weight:600;
+  background:rgba(var(--primary-rgb),.08);
 }
-.day-btn:hover:not(.active){background:rgba(255,255,255,.06)}
+.day-btn:hover:not(.active):not(.today){background:rgba(255,255,255,.06)}
 .day-btn small{font-weight:700;font-size:14px}
 .day-dot{
   width:4px;height:4px;border-radius:50%;position:absolute;bottom:4px;
@@ -306,9 +313,10 @@
   .period-selector{gap:4px}
   .period-btn{padding:5px 10px;font-size:11px}
   .chart-card .chart-wrapper{height:160px}
-  .day-btn{width:38px;height:50px;font-size:11px}
-  .week-nav-btn{width:26px;height:26px}
-  .week-nav-btn svg{width:12px;height:12px}
+  .day-btn{width:36px;height:48px;font-size:11px}
+  .week-nav-btn{width:32px;height:32px}
+  .week-nav-btn svg{width:14px;height:14px}
+  .day-selector-container{gap:4px}
   .meta-card{padding:14px}
   .meta-card-icon{font-size:24px}
   .meta-card-name{font-size:13px}
