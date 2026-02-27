@@ -26,6 +26,11 @@ router.post('/api/metas', auth, async (req, res) => {
       return res.status(400).json({ error: 'Datas de início e fim são obrigatórias' });
     }
 
+    const allowedUnits = ['vezes', 'horas', 'km', 'litros'];
+    if (unit && !allowedUnits.includes(unit)) {
+      return res.status(400).json({ error: 'Unidade inválida' });
+    }
+
     const meta = await Meta.create({
       userId: req.user._id,
       name: name.trim(),
@@ -50,6 +55,11 @@ router.put('/api/metas/:id', auth, async (req, res) => {
     if (!meta) return res.status(404).json({ error: 'Meta não encontrada' });
 
     const { name, icon, targetValue, unit, startDate, endDate, linkedGoalId, currentValue } = req.body;
+
+    const allowedUnits = ['vezes', 'horas', 'km', 'litros'];
+    if (unit && !allowedUnits.includes(unit)) {
+      return res.status(400).json({ error: 'Unidade inválida' });
+    }
 
     if (name) meta.name = name.trim();
     if (icon) meta.icon = icon;
