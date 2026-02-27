@@ -19,14 +19,10 @@
     <p class="motivation-text" id="motivation-text"></p>
   </div>
 
-  <div class="day-selector-container">
-    <button class="week-nav-btn" onclick="navigateWeek(-1)" title="Semana anterior">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"></polyline></svg>
-    </button>
-    <div class="day-selector" id="day-selector"></div>
-    <button class="week-nav-btn" id="week-next-btn" onclick="navigateWeek(1)" title="Próxima semana">
-      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 6 15 12 9 18"></polyline></svg>
-    </button>
+  <div class="week-navigator" id="week-navigator">
+    <button class="week-arrow" onclick="changeWeek(-1)" title="Semana anterior">&#8249;</button>
+    <div class="week-days" id="week-days"></div>
+    <button class="week-arrow" id="week-arrow-next" onclick="changeWeek(1)" title="Próxima semana">&#8250;</button>
   </div>
 
   <div class="goals-list" id="goals-list"></div>
