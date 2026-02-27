@@ -2,29 +2,63 @@ const DAYS_PT = ['Dom', 'Seg', 'Ter', 'Qua', 'Qui', 'Sex', 'Sáb'];
 const FREQ_LABELS = { daily: 'Diária', weekly: 'Semanal', monthly: 'Mensal', custom: 'Custom' };
 let routineChart = null;
 let checkinInProgress = {};
+let weekOffset = 0;
+
+function getWeekDays(offset) {
+  const today = new Date();
+  today.setHours(12, 0, 0, 0);
+  const dow = today.getDay();
+  const monday = new Date(today);
+  monday.setDate(today.getDate() - ((dow === 0 ? 7 : dow) - 1) + (offset * 7));
+  const days = [];
+  for (let i = 0; i < 7; i++) {
+    const d = new Date(monday);
+    d.setDate(monday.getDate() + i);
+    days.push(d);
+  }
+  return days;
+}
 
 function initDaySelector() {
+  renderWeek(weekOffset);
+}
+
+function renderWeek(offset) {
   const container = document.getElementById('day-selector');
   container.innerHTML = '';
+
   const today = new Date();
-  for (let i = -3; i <= 3; i++) {
-    const d = new Date(today);
-    d.setDate(d.getDate() + i);
+  today.setHours(12, 0, 0, 0);
+  const todayStr = today.toISOString().split('T')[0];
+  const days = getWeekDays(offset);
+
+  days.forEach(d => {
     const dateStr = d.toISOString().split('T')[0];
     const dow = d.getDay();
+    const isToday = dateStr === todayStr;
+    const isSelected = dateStr === state.currentDate;
     const btn = document.createElement('button');
-    btn.className = 'day-btn' + (i === 0 ? ' active' : '');
+    btn.className = 'day-btn' + (isSelected ? ' active' : '') + (isToday && !isSelected ? ' today' : '');
     btn.dataset.date = dateStr;
     btn.innerHTML = `<span>${DAYS_PT[dow]}</span><small>${d.getDate()}</small>`;
     btn.addEventListener('click', () => {
       document.querySelectorAll('.day-btn').forEach(b => b.classList.remove('active'));
       btn.classList.add('active');
+      if (btn.classList.contains('today')) btn.classList.remove('today');
       state.currentDate = dateStr;
       loadDailyGoals(dateStr);
     });
     container.appendChild(btn);
-  }
+  });
 }
+
+function navigateWeek(direction) {
+  weekOffset += direction;
+  renderWeek(weekOffset);
+}
+
+document.getElementById('week-prev')?.addEventListener('click', () => navigateWeek(-1));
+document.getElementById('week-next')?.addEventListener('click', () => navigateWeek(1));
 
 async function loadDailyGoals(date) {
   try {
