@@ -232,7 +232,7 @@ async function evaluateCriteria(badge, user, activeGoals, allGoals, logs, unlock
     }
 
     case 'theme_change':
-      return user.theme !== 'gold';
+      return user.theme !== 'dourado';
 
     case 'avatar_upload':
       return user.avatar && user.avatar.type === 'custom';

@@ -18,9 +18,10 @@ const THEMES = {
 };
 
 // Global state
+const _now = new Date();
 const state = {
   currentTab: 'routine',
-  currentDate: new Date().toISOString().split('T')[0],
+  currentDate: `${_now.getFullYear()}-${String(_now.getMonth()+1).padStart(2,'0')}-${String(_now.getDate()).padStart(2,'0')}`,
   goals: [],
   statsLoaded: false,
   achievementsLoaded: false

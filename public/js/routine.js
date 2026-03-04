@@ -23,6 +23,10 @@ function initDaySelector() {
   renderWeek(weekOffset);
 }
 
+function toLocalDateStr(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function renderWeek(offset) {
   const container = document.getElementById('day-selector');
   if (!container) return;
@@ -30,7 +34,7 @@ function renderWeek(offset) {
 
   const today = new Date();
   today.setHours(12, 0, 0, 0);
-  const todayStr = today.toISOString().split('T')[0];
+  const todayStr = toLocalDateStr(today);
   const days = getWeekDays(offset);
 
   // Disable forward button if already on current week
@@ -41,7 +45,7 @@ function renderWeek(offset) {
   }
 
   days.forEach(d => {
-    const dateStr = d.toISOString().split('T')[0];
+    const dateStr = toLocalDateStr(d);
     const dow = d.getDay();
     const isToday = dateStr === todayStr;
     const isSelected = dateStr === state.currentDate;

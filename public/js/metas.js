@@ -99,12 +99,16 @@ function renderMetas(metas) {
   });
 }
 
+function _localDate(d) {
+  return `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+}
+
 function calculateMetaStatus(meta) {
   if (meta.isCompleted) {
     return { text: 'Concluída!', icon: '✅', badgeClass: 'done', barClass: 'completed' };
   }
 
-  const today = new Date().toISOString().split('T')[0];
+  const today = _localDate(new Date());
   if (today > meta.endDate) {
     return { text: 'Prazo expirado', icon: '⏰', badgeClass: 'expired', barClass: 'behind' };
   }
@@ -194,11 +198,11 @@ async function openCreateMetaModal() {
   document.getElementById('meta-target').value = '';
   document.getElementById('meta-unit').value = 'vezes';
 
-  const today = new Date().toISOString().split('T')[0];
+  const _today = _localDate(new Date());
   const nextMonth = new Date();
   nextMonth.setMonth(nextMonth.getMonth() + 1);
-  document.getElementById('meta-start').value = today;
-  document.getElementById('meta-end').value = nextMonth.toISOString().split('T')[0];
+  document.getElementById('meta-start').value = _today;
+  document.getElementById('meta-end').value = _localDate(nextMonth);
 
   const select = document.getElementById('meta-linked-goal');
   select.innerHTML = '<option value="">Nenhuma (progresso manual)</option>';

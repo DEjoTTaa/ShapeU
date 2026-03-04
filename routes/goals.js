@@ -48,6 +48,20 @@ router.post('/api/goals', auth, async (req, res) => {
   }
 });
 
+router.put('/api/goals/reorder', auth, async (req, res) => {
+  try {
+    const { order } = req.body;
+    if (!Array.isArray(order)) return res.status(400).json({ error: 'Ordem inválida' });
+
+    for (let i = 0; i < order.length; i++) {
+      await Goal.updateOne({ _id: order[i], userId: req.user._id }, { order: i });
+    }
+    res.json({ success: true });
+  } catch (error) {
+    res.status(500).json({ error: 'Erro ao reordenar metas' });
+  }
+});
+
 router.put('/api/goals/:id', auth, async (req, res) => {
   try {
     const goal = await Goal.findOne({ _id: req.params.id, userId: req.user._id });
@@ -76,20 +90,6 @@ router.delete('/api/goals/:id', auth, async (req, res) => {
     res.json({ success: true });
   } catch (error) {
     res.status(500).json({ error: 'Erro ao remover meta' });
-  }
-});
-
-router.put('/api/goals/reorder', auth, async (req, res) => {
-  try {
-    const { order } = req.body;
-    if (!Array.isArray(order)) return res.status(400).json({ error: 'Ordem inválida' });
-
-    for (let i = 0; i < order.length; i++) {
-      await Goal.updateOne({ _id: order[i], userId: req.user._id }, { order: i });
-    }
-    res.json({ success: true });
-  } catch (error) {
-    res.status(500).json({ error: 'Erro ao reordenar metas' });
   }
 });
 
