@@ -16,6 +16,10 @@ async function loadAchievements() {
   try {
     const res = await fetch('/api/achievements');
     const data = await res.json();
+    console.log('Achievements data:', data);
+    console.log('Total achievements:', data.achievements ? data.achievements.length : 0);
+    console.log('Total unlocked:', data.achievements ? data.achievements.filter(a => a.unlocked).length : 0);
+
     allAchievements = data.achievements || [];
 
     // Update level header
@@ -56,7 +60,6 @@ function renderBadgesShowcase() {
     countEl.textContent = unlocked.length + ' desbloqueada' + (unlocked.length !== 1 ? 's' : '');
   }
 
-  // Hide the entire showcase if no badges unlocked
   if (unlocked.length === 0) {
     showcase.style.display = 'none';
     return;
@@ -84,6 +87,8 @@ function renderAchievements(filter) {
   currentFilter = filter;
   const grid = document.getElementById('ach-grid');
   const recentDiv = document.getElementById('ach-recent');
+  if (!grid) { console.error('ach-grid element not found'); return; }
+  if (!recentDiv) { console.error('ach-recent element not found'); return; }
   grid.innerHTML = '';
   recentDiv.innerHTML = '';
 
@@ -113,19 +118,20 @@ function renderAchievements(filter) {
       });
       recentDiv.appendChild(recentGrid);
     } else {
-      // No unlocked achievements - hide the section completely
       recentDiv.style.display = 'none';
     }
   } else {
     recentDiv.style.display = 'none';
   }
 
-  // All badges
+  // Render ALL badges in the grid
+  console.log('Rendering', filtered.length, 'badges to grid');
   filtered.forEach((ach, i) => {
     const card = createBadgeCard(ach);
     card.style.animationDelay = `${i * 0.03}s`;
     grid.appendChild(card);
   });
+  console.log('Grid now has', grid.children.length, 'children');
 
   if (filtered.length === 0) {
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;color:#555;padding:20px;font-size:13px">Nenhuma conquista nesta categoria</p>';
@@ -137,7 +143,8 @@ function createBadgeCard(ach, isRecent = false) {
   const isSecret = ach.category === 'secretas';
   const isLocked = !ach.unlocked;
 
-  card.className = `badge-card animate-in ${ach.unlocked ? 'unlocked' : 'locked'} rarity-${ach.rarity}`;
+  card.className = `badge-card ${ach.unlocked ? 'unlocked' : 'locked'} rarity-${ach.rarity}`;
+  card.setAttribute('data-category', ach.category);
 
   if (isLocked && isSecret) {
     card.innerHTML = `

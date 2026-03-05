@@ -181,6 +181,8 @@ async function toggleGoal(goalId, completed, checkboxEl) {
         data.new_achievements.forEach(ach => {
           queueAchievement(ach.badge, ach.xpAwarded);
         });
+        // Force achievements tab to re-fetch on next visit
+        state.achievementsLoaded = false;
       }
 
       window.USER.xp = data.new_xp;
